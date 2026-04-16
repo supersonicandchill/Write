@@ -1,417 +1,2205 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
-<title>Away Game — Christian Parent’s Playbook</title>
-<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1a2e1a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>FocusScript – Your Writing Coach</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
+/* ===== DESIGN SYSTEM ===== */
+:root {
+  --sage: #4a7c59;
+  --sage-light: #6aaa7e;
+  --sage-dark: #2f5239;
+  --sage-pale: #d4e8d9;
+  --forest: #1a2e1a;
+  --forest-mid: #243624;
+  --forest-soft: #2f4a2f;
+  --cream: #f5f0e8;
+  --cream-warm: #ede6d6;
+  --amber: #d4a853;
+  --amber-light: #e8c47a;
+  --coral: #c96b4a;
+  --sky: #5b8fa8;
+  --sky-light: #7aafc8;
+  --text-primary: #1a2e1a;
+  --text-secondary: #4a6040;
+  --text-muted: #7a9070;
+  --border: rgba(74,124,89,0.2);
+  --shadow-sm: 0 2px 8px rgba(26,46,26,0.08);
+  --shadow-md: 0 4px 20px rgba(26,46,26,0.12);
+  --shadow-lg: 0 8px 40px rgba(26,46,26,0.18);
+  --radius: 14px;
+  --radius-sm: 8px;
+  --radius-lg: 20px;
+}
+.dark {
+  --cream: #121c12;
+  --cream-warm: #1a2e1a;
+  --text-primary: #e8f0e8;
+  --text-secondary: #a0c0a0;
+  --text-muted: #607860;
+  --border: rgba(106,170,126,0.15);
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 20px rgba(0,0,0,0.4);
+  --shadow-lg: 0 8px 40px rgba(0,0,0,0.5);
+  --forest: #e8f0e8;
+  --forest-mid: #1a2e1a;
+}
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: #f8f9fa; font-family: 'DM Sans', system-ui, sans-serif; color: #1a1a1a; line-height: 1.6; }
-button { cursor: pointer; }
-.progress-bar { height: 10px; background: #e9ecef; border-radius: 9999px; overflow: hidden; }
-.progress-fill { height: 100%; transition: width 0.5s ease; }
-.team-card { background: #fff; border: 1px solid #dee2e6; border-radius: 16px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.06); }
-.delete-btn { background: #fee2e2; color: #ef4444; border: none; width: 32px; height: 32px; border-radius: 8px; font-size: 18px; }
+html { font-size: 16px; scroll-behavior: smooth; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--text-primary);
+  min-height: 100vh;
+  transition: background 0.3s, color 0.3s;
+  overflow-x: hidden;
+}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--sage-pale); border-radius: 3px; }
+
+/* ===== SCREENS ===== */
+.screen { display: none; min-height: 100vh; animation: fadeIn 0.3s ease; }
+.screen.active { display: flex; flex-direction: column; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ===== LAYOUT ===== */
+.app-shell { display: flex; flex-direction: column; min-height: 100vh; }
+.main-content { flex: 1; overflow-y: auto; padding: 0 0 80px; }
+.nav-bar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--cream-warm);
+  border-top: 1px solid var(--border);
+  display: flex; justify-content: space-around; align-items: center;
+  padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+  z-index: 100;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 -4px 20px rgba(26,46,26,0.08);
+}
+.nav-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 6px 16px; border-radius: 12px; border: none;
+  background: transparent; cursor: pointer; color: var(--text-muted);
+  font-size: 10px; font-family: 'DM Sans', sans-serif; font-weight: 500;
+  letter-spacing: 0.04em; text-transform: uppercase;
+  transition: all 0.2s; position: relative;
+}
+.nav-btn svg { width: 22px; height: 22px; }
+.nav-btn.active { color: var(--sage); background: var(--sage-pale); }
+.nav-btn.active::after {
+  content: ''; position: absolute; top: -8px; left: 50%; transform: translateX(-50%);
+  width: 24px; height: 3px; background: var(--sage); border-radius: 0 0 3px 3px;
+}
+.dark .nav-btn.active { background: rgba(74,124,89,0.2); }
+
+/* ===== TOP BAR ===== */
+.top-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px 8px;
+  position: sticky; top: 0; background: var(--cream);
+  z-index: 50; border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+}
+.top-bar h2 { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--text-primary); }
+.icon-btn {
+  width: 36px; height: 36px; border-radius: 50%; border: none;
+  background: var(--sage-pale); color: var(--sage-dark);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.2s;
+}
+.icon-btn:hover { background: var(--sage); color: white; }
+.dark .icon-btn { background: rgba(74,124,89,0.2); color: var(--sage-light); }
+
+/* ===== CARDS ===== */
+.card {
+  background: var(--cream-warm);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s;
+}
+.card:hover { box-shadow: var(--shadow-md); }
+.dark .card { background: #1f321f; }
+
+/* ===== BUTTONS ===== */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 20px; border-radius: var(--radius-sm);
+  border: none; cursor: pointer; font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem; font-weight: 600; transition: all 0.2s;
+  letter-spacing: 0.01em;
+}
+.btn-primary { background: var(--sage); color: white; }
+.btn-primary:hover { background: var(--sage-dark); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.btn-secondary { background: var(--sage-pale); color: var(--sage-dark); }
+.btn-secondary:hover { background: var(--sage); color: white; }
+.btn-ghost { background: transparent; color: var(--text-secondary); border: 1px solid var(--border); }
+.btn-ghost:hover { background: var(--sage-pale); }
+.btn-danger { background: #fee2e2; color: #991b1b; }
+.btn-danger:hover { background: #fca5a5; }
+.btn-amber { background: var(--amber); color: white; }
+.btn-amber:hover { background: #c49440; }
+.btn-lg { padding: 14px 28px; font-size: 1rem; border-radius: var(--radius); }
+.dark .btn-secondary { background: rgba(74,124,89,0.2); color: var(--sage-light); }
+.dark .btn-ghost { border-color: var(--border); color: var(--text-secondary); }
+
+/* ===== INPUTS ===== */
+input[type="text"], input[type="number"], textarea, select {
+  width: 100%; padding: 10px 14px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); background: var(--cream);
+  color: var(--text-primary); font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem; transition: border-color 0.2s;
+  outline: none;
+}
+input:focus, textarea:focus, select:focus {
+  border-color: var(--sage); box-shadow: 0 0 0 3px rgba(74,124,89,0.1);
+}
+.dark input, .dark textarea, .dark select {
+  background: #1a2e1a; border-color: rgba(106,170,126,0.2); color: var(--text-primary);
+}
+label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.06em; }
+
+/* ===== TAGS ===== */
+.tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 600;
+  letter-spacing: 0.04em; text-transform: uppercase;
+}
+.tag-green { background: #d1fae5; color: #065f46; }
+.tag-amber { background: #fef3c7; color: #92400e; }
+.tag-blue { background: #dbeafe; color: #1e40af; }
+.tag-gray { background: var(--sage-pale); color: var(--text-secondary); }
+.tag-coral { background: #fee2e2; color: #991b1b; }
+
+/* ===== PROGRESS ===== */
+.progress-bar { height: 8px; background: var(--sage-pale); border-radius: 4px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--sage), var(--sage-light)); border-radius: 4px; transition: width 0.6s ease; }
+
+/* ===== ONBOARDING ===== */
+#screen-onboarding {
+  background: linear-gradient(135deg, #1a2e1a 0%, #2f5239 50%, #4a7c59 100%);
+  min-height: 100vh; display: flex; flex-direction: column;
+  align-items: center; justify-content: flex-start;
+  padding: 40px 24px 40px;
+}
+.ob-step { display: none; width: 100%; max-width: 480px; animation: fadeIn 0.4s ease; }
+.ob-step.active { display: flex; flex-direction: column; gap: 24px; }
+.ob-logo { text-align: center; margin-bottom: 8px; }
+.ob-logo h1 {
+  font-family: 'Playfair Display', serif; font-size: 2.4rem;
+  color: var(--cream); letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+.ob-logo p { color: rgba(255,255,255,0.65); font-size: 0.9rem; margin-top: 6px; }
+.ob-card {
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+  border-radius: var(--radius-lg); padding: 28px; backdrop-filter: blur(16px);
+}
+.ob-card h3 { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: white; margin-bottom: 6px; }
+.ob-card p { color: rgba(255,255,255,0.65); font-size: 0.88rem; margin-bottom: 20px; line-height: 1.6; }
+.ob-card label { color: rgba(255,255,255,0.75); }
+.ob-card input, .ob-card select { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); color: white; }
+.ob-card input::placeholder { color: rgba(255,255,255,0.4); }
+.ob-card input:focus { border-color: var(--sage-light); box-shadow: 0 0 0 3px rgba(106,170,126,0.2); }
+.ob-progress { display: flex; gap: 6px; justify-content: center; margin-bottom: 8px; }
+.ob-dot { width: 8px; height: 8px; border-radius: 4px; background: rgba(255,255,255,0.25); transition: all 0.3s; }
+.ob-dot.active { background: var(--sage-light); width: 24px; }
+.ob-dot.done { background: rgba(106,170,126,0.6); }
+.range-display { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
+.range-display .range-val { font-family: 'DM Mono', monospace; color: var(--sage-light); font-size: 1.1rem; font-weight: 500; }
+input[type="range"] { -webkit-appearance: none; width: 100%; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.15); outline: none; padding: 0; border: none; }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--sage-light); cursor: pointer; box-shadow: 0 0 0 4px rgba(106,170,126,0.25); }
+
+/* ===== DASHBOARD ===== */
+.section-pad { padding: 16px 20px; }
+.section-label { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px; }
+
+/* Progress Ring */
+.ring-container { display: flex; justify-content: center; align-items: center; gap: 32px; padding: 24px 20px 8px; }
+.ring-wrap { position: relative; width: 140px; height: 140px; }
+.ring-svg { transform: rotate(-90deg); }
+.ring-bg { fill: none; stroke: var(--sage-pale); stroke-width: 10; }
+.ring-fill { fill: none; stroke: var(--sage); stroke-width: 10; stroke-linecap: round; transition: stroke-dashoffset 1s ease; }
+.ring-fill.amber { stroke: var(--amber); }
+.ring-label { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.ring-pct { font-family: 'DM Mono', monospace; font-size: 1.6rem; font-weight: 500; color: var(--sage); line-height: 1; }
+.ring-pct.amber { color: var(--amber); }
+.ring-sub { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; }
+
+/* Today Card */
+.today-card {
+  margin: 0 20px 16px;
+  background: linear-gradient(135deg, var(--sage) 0%, var(--sage-dark) 100%);
+  border-radius: var(--radius-lg); padding: 20px; color: white;
+  position: relative; overflow: hidden;
+}
+.today-card::before {
+  content: ''; position: absolute; top: -30px; right: -30px;
+  width: 120px; height: 120px; border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+}
+.today-title { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.75; margin-bottom: 6px; }
+.today-promise { font-family: 'Playfair Display', serif; font-size: 1.15rem; margin-bottom: 14px; }
+.today-stats { display: flex; gap: 20px; }
+.today-stat { display: flex; flex-direction: column; gap: 2px; }
+.today-stat .val { font-family: 'DM Mono', monospace; font-size: 1.4rem; font-weight: 500; }
+.today-stat .lbl { font-size: 0.65rem; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.06em; }
+.today-action { margin-top: 16px; }
+
+/* Streak */
+.streak-row { display: flex; align-items: center; gap: 10px; padding: 12px 20px; }
+.streak-flame { font-size: 1.5rem; }
+.streak-num { font-family: 'DM Mono', monospace; font-size: 1.6rem; color: var(--amber); font-weight: 500; }
+.streak-label { font-size: 0.8rem; color: var(--text-secondary); }
+
+/* Pomodoro Start */
+.pomo-start-btn {
+  margin: 0 20px 16px;
+  width: calc(100% - 40px);
+  padding: 16px; border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, var(--amber) 0%, #c49440 100%);
+  color: white; border: none; cursor: pointer;
+  font-family: 'Playfair Display', serif; font-size: 1.2rem;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  box-shadow: 0 4px 20px rgba(212,168,83,0.3); transition: all 0.2s;
+}
+.pomo-start-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(212,168,83,0.4); }
+.pomo-start-btn:active { transform: translateY(0); }
+.pomo-orb { width: 20px; height: 20px; border-radius: 50%; background: rgba(255,255,255,0.3); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100% { transform: scale(1); opacity: 0.7; } 50% { transform: scale(1.3); opacity: 1; } }
+
+/* Quote */
+.quote-card { margin: 0 20px 16px; }
+.quote-text { font-family: 'Playfair Display', serif; font-style: italic; font-size: 0.95rem; line-height: 1.6; color: var(--text-secondary); }
+.quote-attr { font-size: 0.72rem; color: var(--text-muted); margin-top: 6px; letter-spacing: 0.04em; }
+
+/* Daily checklist */
+.checklist { display: flex; flex-direction: column; gap: 8px; }
+.check-item {
+  display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px;
+  background: var(--cream); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  cursor: pointer; transition: all 0.2s;
+}
+.dark .check-item { background: rgba(26,46,26,0.5); }
+.check-item.done { opacity: 0.65; }
+.check-item.done .check-label { text-decoration: line-through; color: var(--text-muted); }
+.check-box {
+  width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--border);
+  flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; margin-top: 1px;
+}
+.check-item.done .check-box { background: var(--sage); border-color: var(--sage); }
+.check-label { font-size: 0.9rem; line-height: 1.4; flex: 1; }
+.check-sub { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+
+/* ===== POMODORO ===== */
+.pomo-screen { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; }
+.pomo-chapter-select { width: 100%; max-width: 320px; margin-bottom: 32px; }
+.pomo-orb-wrap { position: relative; width: 220px; height: 220px; margin: 0 auto 32px; }
+.pomo-orb-bg {
+  width: 220px; height: 220px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, var(--sage-light), var(--sage-dark));
+  box-shadow: 0 0 60px rgba(74,124,89,0.3), inset 0 0 40px rgba(0,0,0,0.1);
+  display: flex; align-items: center; justify-content: center; flex-direction: column;
+  position: relative; overflow: hidden; transition: background 0.5s;
+}
+.pomo-orb-bg.break-mode {
+  background: radial-gradient(circle at 35% 35%, var(--sky-light), var(--sky));
+  box-shadow: 0 0 60px rgba(91,143,168,0.3), inset 0 0 40px rgba(0,0,0,0.1);
+}
+.pomo-orb-bg::after {
+  content: ''; position: absolute; inset: 0; border-radius: 50%;
+  background: radial-gradient(circle at 65% 65%, transparent 40%, rgba(0,0,0,0.15));
+}
+.pomo-orb-pulse {
+  position: absolute; inset: -10px; border-radius: 50%;
+  border: 2px solid rgba(74,124,89,0.3); animation: orbPulse 3s infinite;
+}
+@keyframes orbPulse { 0%,100% { transform: scale(1); opacity: 0.6; } 50% { transform: scale(1.06); opacity: 0.2; } }
+.pomo-time {
+  font-family: 'DM Mono', monospace; font-size: 3rem; font-weight: 500;
+  color: white; z-index: 1; text-shadow: 0 2px 8px rgba(0,0,0,0.2); line-height: 1;
+}
+.pomo-mode-label {
+  font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.15em;
+  color: rgba(255,255,255,0.75); z-index: 1; margin-top: 6px;
+}
+.pomo-svg { position: absolute; inset: 0; }
+.pomo-svg-track { fill: none; stroke: rgba(255,255,255,0.1); stroke-width: 6; }
+.pomo-svg-prog { fill: none; stroke: rgba(255,255,255,0.6); stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset 1s linear; }
+.pomo-controls { display: flex; gap: 16px; align-items: center; margin-bottom: 24px; }
+.pomo-ctrl-btn {
+  width: 52px; height: 52px; border-radius: 50%; border: 2px solid var(--border);
+  background: var(--cream-warm); color: var(--text-secondary);
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  transition: all 0.2s; font-size: 1.2rem;
+}
+.pomo-ctrl-btn.primary { width: 64px; height: 64px; background: var(--sage); color: white; border-color: var(--sage); font-size: 1.5rem; }
+.pomo-ctrl-btn:hover { transform: scale(1.05); box-shadow: var(--shadow-md); }
+.dark .pomo-ctrl-btn { background: #1f321f; }
+.pomo-session-log { width: 100%; max-width: 380px; }
+.session-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 12px; border-radius: var(--radius-sm);
+  font-size: 0.82rem; border-bottom: 1px solid var(--border);
+}
+.session-item:last-child { border-bottom: none; }
+.pomo-sound-toggle { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: var(--text-muted); cursor: pointer; margin-bottom: 16px; }
+.toggle-switch { width: 36px; height: 20px; background: var(--sage-pale); border-radius: 10px; position: relative; transition: background 0.2s; flex-shrink: 0; }
+.toggle-switch.on { background: var(--sage); }
+.toggle-knob { position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: white; transition: left 0.2s; box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
+.toggle-switch.on .toggle-knob { left: 18px; }
+
+/* ===== PLANNER ===== */
+.planner-header { padding: 16px 20px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.chapter-list { display: flex; flex-direction: column; gap: 10px; padding: 0 20px; }
+.chapter-card {
+  background: var(--cream-warm); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden;
+  transition: box-shadow 0.2s, transform 0.15s;
+}
+.chapter-card:hover { box-shadow: var(--shadow-md); }
+.dark .chapter-card { background: #1f321f; }
+.chapter-card.dragging { opacity: 0.5; transform: scale(0.98); }
+.chapter-card.drag-over { border-color: var(--sage); box-shadow: 0 0 0 2px var(--sage-pale); }
+.chapter-top {
+  display: flex; align-items: center; gap: 10px; padding: 14px 14px 10px;
+  cursor: pointer;
+}
+.chapter-drag { cursor: grab; color: var(--text-muted); flex-shrink: 0; font-size: 1.1rem; }
+.chapter-num {
+  width: 28px; height: 28px; border-radius: 50%; background: var(--sage);
+  color: white; display: flex; align-items: center; justify-content: center;
+  font-size: 0.72rem; font-weight: 700; flex-shrink: 0;
+}
+.chapter-title-wrap { flex: 1; min-width: 0; }
+.chapter-title { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chapter-meta { font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; }
+.chapter-progress-bar { height: 4px; background: var(--sage-pale); margin: 0 14px 4px; border-radius: 2px; overflow: hidden; }
+.chapter-progress-fill { height: 100%; background: var(--sage); border-radius: 2px; transition: width 0.5s; }
+.chapter-expanded { padding: 12px 14px 14px; border-top: 1px solid var(--border); }
+.chapter-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.chapter-mini-check { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.mini-check-row { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; cursor: pointer; }
+.mini-check-box { width: 16px; height: 16px; border-radius: 4px; border: 2px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+.mini-check-row.done .mini-check-box { background: var(--sage); border-color: var(--sage); }
+.mini-check-row.done span { text-decoration: line-through; color: var(--text-muted); }
+.word-input-row { display: flex; gap: 8px; align-items: center; margin-top: 10px; }
+.word-input-row input { flex: 1; }
+
+/* ===== WRITING STUDIO ===== */
+.studio-tabs { display: flex; gap: 0; overflow-x: auto; border-bottom: 1px solid var(--border); background: var(--cream-warm); flex-shrink: 0; }
+.studio-tab {
+  padding: 10px 16px; font-size: 0.8rem; font-weight: 500; white-space: nowrap;
+  cursor: pointer; border-bottom: 2px solid transparent; color: var(--text-muted);
+  transition: all 0.2s; flex-shrink: 0;
+}
+.studio-tab.active { color: var(--sage); border-bottom-color: var(--sage); background: var(--cream); }
+.studio-editor-wrap { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+.studio-toolbar {
+  padding: 8px 16px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap; flex-shrink: 0;
+}
+.studio-editor {
+  flex: 1; padding: 20px; font-family: 'Playfair Display', serif;
+  font-size: 1rem; line-height: 1.85; color: var(--text-primary);
+  background: var(--cream); outline: none; overflow-y: auto; min-height: 200px;
+  resize: none; border: none;
+}
+.studio-editor:empty::before { content: attr(data-placeholder); color: var(--text-muted); font-style: italic; }
+.studio-footer { padding: 8px 16px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); flex-shrink: 0; background: var(--cream-warm); }
+.studio-word-count { font-family: 'DM Mono', monospace; }
+.focus-mode .studio-tabs, .focus-mode .studio-toolbar, .focus-mode .studio-footer { display: none; }
+.focus-mode .nav-bar, .focus-mode .top-bar { display: none; }
+.focus-mode .studio-editor { padding: 48px; max-width: 680px; margin: 0 auto; font-size: 1.1rem; }
+.focus-mode .main-content { padding-bottom: 0; }
+
+/* ===== ANALYTICS ===== */
+.chart-card { margin: 0 20px 16px; }
+canvas { border-radius: var(--radius-sm); }
+.badge-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 0 20px 16px; }
+.badge-item {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 14px 8px; background: var(--cream-warm); border: 1px solid var(--border);
+  border-radius: var(--radius); text-align: center;
+  transition: all 0.2s;
+}
+.badge-item.earned { border-color: var(--amber); background: #fef9ee; }
+.dark .badge-item.earned { background: rgba(212,168,83,0.1); }
+.badge-icon { font-size: 1.8rem; }
+.badge-name { font-size: 0.68rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; }
+.badge-item:not(.earned) { opacity: 0.45; filter: grayscale(0.8); }
+.heatmap-wrap { padding: 0 20px 16px; overflow-x: auto; }
+.heatmap-grid { display: grid; grid-auto-columns: 14px; grid-auto-flow: column; gap: 3px; min-width: max-content; }
+.heatmap-row { display: grid; grid-template-rows: repeat(7, 14px); gap: 3px; }
+.heatmap-cell { width: 14px; height: 14px; border-radius: 3px; background: var(--sage-pale); transition: all 0.2s; cursor: default; }
+.heatmap-cell.level-1 { background: rgba(74,124,89,0.3); }
+.heatmap-cell.level-2 { background: rgba(74,124,89,0.55); }
+.heatmap-cell.level-3 { background: rgba(74,124,89,0.75); }
+.heatmap-cell.level-4 { background: var(--sage); }
+
+/* ===== SETTINGS ===== */
+.settings-section { padding: 20px; }
+.settings-section + .settings-section { border-top: 1px solid var(--border); }
+.settings-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.settings-row:last-child { border-bottom: none; }
+.settings-label { font-size: 0.9rem; color: var(--text-primary); }
+.settings-sub { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+
+/* ===== THEME VAULT ===== */
+.vault-item { padding: 12px 14px; background: var(--cream-warm); border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 8px; position: relative; }
+.vault-item-text { font-size: 0.9rem; line-height: 1.5; padding-right: 24px; }
+.vault-item-date { font-size: 0.68rem; color: var(--text-muted); margin-top: 4px; font-family: 'DM Mono', monospace; }
+.vault-delete { position: absolute; top: 10px; right: 10px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.9rem; }
+.vault-add-row { display: flex; gap: 8px; margin-bottom: 16px; }
+.vault-add-row textarea { resize: none; height: 60px; }
+
+/* ===== CONFETTI ===== */
+#confetti-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 1000; display: none; }
+
+/* ===== MODALS ===== */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+  display: flex; align-items: flex-end; justify-content: center;
+  z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+  backdrop-filter: blur(4px);
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal-sheet {
+  background: var(--cream); border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  padding: 24px; width: 100%; max-width: 500px; max-height: 85vh; overflow-y: auto;
+  transform: translateY(100%); transition: transform 0.3s ease;
+}
+.modal-overlay.open .modal-sheet { transform: translateY(0); }
+.modal-handle { width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 20px; }
+.modal-title { font-family: 'Playfair Display', serif; font-size: 1.3rem; margin-bottom: 16px; }
+.dark .modal-sheet { background: #243624; }
+
+/* ===== EASTER EGG ===== */
+.easter-egg {
+  position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
+  background: linear-gradient(135deg, var(--sage), var(--sage-dark));
+  color: white; padding: 16px 24px; border-radius: var(--radius-lg);
+  font-family: 'Playfair Display', serif; font-size: 0.9rem; font-style: italic;
+  max-width: 320px; text-align: center; z-index: 300;
+  box-shadow: var(--shadow-lg); animation: eggSlide 0.4s ease;
+  line-height: 1.6;
+}
+@keyframes eggSlide { from { opacity: 0; transform: translateX(-50%) translateY(20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+
+/* ===== TOAST ===== */
+.toast {
+  position: fixed; top: 20px; right: 20px; background: var(--forest);
+  color: white; padding: 12px 20px; border-radius: var(--radius-sm);
+  font-size: 0.88rem; z-index: 500; opacity: 0; transform: translateY(-10px);
+  transition: all 0.3s; box-shadow: var(--shadow-lg); max-width: 300px;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+.dark .toast { background: var(--sage-dark); }
+
+/* ===== LOCKED MODE ===== */
+.locked-overlay {
+  position: fixed; inset: 0; background: rgba(26,46,26,0.92);
+  z-index: 150; display: none; flex-direction: column;
+  align-items: center; justify-content: center;
+  color: white; text-align: center; padding: 40px;
+  backdrop-filter: blur(8px);
+}
+.locked-overlay.active { display: flex; }
+.locked-overlay h2 { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin-bottom: 12px; }
+.locked-overlay p { color: rgba(255,255,255,0.7); margin-bottom: 32px; line-height: 1.6; }
+
+/* ===== MISC ===== */
+.divider { height: 1px; background: var(--border); margin: 8px 20px; }
+.empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+.empty-state .icon { font-size: 2.5rem; margin-bottom: 12px; }
+.empty-state p { font-size: 0.88rem; line-height: 1.6; }
+.flex { display: flex; }
+.items-center { align-items: center; }
+.gap-8 { gap: 8px; }
+.gap-12 { gap: 12px; }
+.mt-8 { margin-top: 8px; }
+.mt-12 { margin-top: 12px; }
+.mt-16 { margin-top: 16px; }
+.mb-8 { margin-bottom: 8px; }
+.w-full { width: 100%; }
+.text-sm { font-size: 0.85rem; }
+.text-muted { color: var(--text-muted); }
+.font-mono { font-family: 'DM Mono', monospace; }
+.font-serif { font-family: 'Playfair Display', serif; }
+.locked-only { display: none; }
 </style>
 </head>
 <body>
-<div id="root"></div>
-<script type="text/babel" data-presets="react">
-const { useState } = React;
 
-// ─── STORAGE ──────────────────────────────────────────────────────────────────
-function load(key, fb) { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fb; } catch { return fb; } }
-function save(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch {} }
-let _c = Date.now();
-function uid() { return "x" + (++_c).toString(36); }
+<!-- CONFETTI -->
+<canvas id="confetti-canvas"></canvas>
 
-// ─── COLORS ───────────────────────────────────────────────────────────────────
-const C = {
-  bg0: "#f8f9fa", bg1: "#ffffff", bg2: "#f1f3f5", bg3: "#e9ecef",
-  border: "#dee2e6", borderHi: "#ff8c00",
-  text: "#1a1a1a", textSub: "#495057", textMuted: "#6c757d",
-  orange: "#ff8c00", green: "#00b36b"
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- LOCKED MODE OVERLAY -->
+<div class="locked-overlay" id="locked-overlay">
+  <div style="font-size:4rem;margin-bottom:20px;">🔒</div>
+  <h2>Focus Mode Active</h2>
+  <p>Your Pomodoro is running. Stay in the writing zone.<br>The world can wait 25 minutes.</p>
+  <button class="btn btn-ghost" onclick="emergencyPause()" style="background:rgba(255,255,255,0.1);color:white;border-color:rgba(255,255,255,0.2);">⚡ Emergency Pause (still counts)</button>
+</div>
+
+<!-- EASTER EGG -->
+<div id="easter-egg" style="display:none;"></div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal()">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<!-- ========================= ONBOARDING ========================= -->
+<div id="screen-onboarding" class="screen active">
+  <div class="ob-logo">
+    <h1>FocusScript</h1>
+    <p>Your strict-but-kind writing coach</p>
+  </div>
+
+  <div class="ob-progress">
+    <div class="ob-dot active" id="dot-0"></div>
+    <div class="ob-dot" id="dot-1"></div>
+    <div class="ob-dot" id="dot-2"></div>
+    <div class="ob-dot" id="dot-3"></div>
+  </div>
+
+  <!-- Step 0: Welcome -->
+  <div class="ob-step active" id="ob-step-0">
+    <div class="ob-card">
+      <h3>Welcome, Author.</h3>
+      <p>You're about to write the book that tells parents the hardest truth: their love might be holding their kids back. Let's make sure you actually finish it.</p>
+      <p>FocusScript will track your time, enforce your daily minimum, and refuse to let you off easy — with kindness.</p>
+    </div>
+    <button class="btn btn-primary btn-lg w-full" onclick="obNext()">Let's Begin →</button>
+  </div>
+
+  <!-- Step 1: Book Details -->
+  <div class="ob-step" id="ob-step-1">
+    <div class="ob-card">
+      <h3>Your Book</h3>
+      <p>We've pre-filled your title. Confirm it or customize away.</p>
+      <div style="margin-bottom:16px;">
+        <label>Book Title</label>
+        <input type="text" id="ob-title" value="Your Kid is the Worst">
+      </div>
+      <div>
+        <label>Subtitle</label>
+        <input type="text" id="ob-subtitle" value="How Holding Their Hand May Be Holding Them Back">
+      </div>
+    </div>
+    <div style="display:flex;gap:12px;">
+      <button class="btn btn-ghost" onclick="obPrev()">← Back</button>
+      <button class="btn btn-primary" style="flex:1" onclick="obNext()">Continue →</button>
+    </div>
+  </div>
+
+  <!-- Step 2: Word Goal & Chapters -->
+  <div class="ob-step" id="ob-step-2">
+    <div class="ob-card">
+      <h3>Word Goal & Structure</h3>
+      <p>Set your target and how many chapters you'll write.</p>
+      <div style="margin-bottom:20px;">
+        <label>Total Word Goal</label>
+        <input type="range" id="ob-word-goal" min="15000" max="20000" step="500" value="17500" oninput="updateWordGoalDisplay()">
+        <div class="range-display">
+          <span style="color:rgba(255,255,255,0.5);font-size:0.8rem;">15,000</span>
+          <span class="range-val" id="ob-word-goal-display">17,500 words</span>
+          <span style="color:rgba(255,255,255,0.5);font-size:0.8rem;">20,000</span>
+        </div>
+      </div>
+      <div>
+        <label>Number of Chapters</label>
+        <input type="number" id="ob-chapters" min="1" max="50" value="8" style="text-align:center;font-size:1.2rem;">
+      </div>
+    </div>
+    <div style="display:flex;gap:12px;">
+      <button class="btn btn-ghost" onclick="obPrev()">← Back</button>
+      <button class="btn btn-primary" style="flex:1" onclick="obNext()">Continue →</button>
+    </div>
+  </div>
+
+  <!-- Step 3: Generate Skeleton -->
+  <div class="ob-step" id="ob-step-3">
+    <div class="ob-card">
+      <h3>Generate Your Chapter Skeleton</h3>
+      <p>We'll create <strong id="ob-ch-preview" style="color:var(--sage-light)">8 chapters</strong> with suggested titles and balanced word targets — all editable.</p>
+      <div style="background:rgba(255,255,255,0.06);border-radius:10px;padding:14px;font-size:0.82rem;color:rgba(255,255,255,0.7);line-height:1.8;">
+        <div>✓ Evenly distributed word targets</div>
+        <div>✓ Thematic placeholder titles</div>
+        <div>✓ Mini-checklist per chapter</div>
+        <div>✓ Drag-to-reorder any time</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:12px;">
+      <button class="btn btn-ghost" onclick="obPrev()">← Back</button>
+      <button class="btn btn-amber btn-lg" style="flex:1" onclick="generateAndLaunch()">
+        ✨ Generate & Start Writing
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ========================= MAIN APP ========================= -->
+<div id="screen-app" class="screen">
+  <div class="app-shell">
+    <div class="main-content" id="main-content">
+
+      <!-- DASHBOARD TAB -->
+      <div id="tab-dashboard" class="tab-panel">
+        <div class="top-bar">
+          <h2>Today's Session</h2>
+          <div style="display:flex;gap:8px;">
+            <button class="icon-btn" title="Theme" onclick="toggleTheme()">🌙</button>
+            <button class="icon-btn" title="Settings" onclick="switchTab('settings')">⚙️</button>
+          </div>
+        </div>
+
+        <div class="ring-container">
+          <div class="ring-wrap">
+            <svg class="ring-svg" width="140" height="140" viewBox="0 0 140 140">
+              <circle class="ring-bg" cx="70" cy="70" r="60"/>
+              <circle class="ring-fill" id="ring-words" cx="70" cy="70" r="60" stroke-dasharray="377" stroke-dashoffset="377"/>
+            </svg>
+            <div class="ring-label">
+              <div class="ring-pct" id="ring-words-pct">0%</div>
+              <div class="ring-sub">Words</div>
+            </div>
+          </div>
+          <div class="ring-wrap">
+            <svg class="ring-svg" width="140" height="140" viewBox="0 0 140 140">
+              <circle class="ring-bg" cx="70" cy="70" r="60"/>
+              <circle class="ring-fill amber" id="ring-chapters" cx="70" cy="70" r="60" stroke-dasharray="377" stroke-dashoffset="377"/>
+            </svg>
+            <div class="ring-label">
+              <div class="ring-pct amber" id="ring-chapters-pct">0%</div>
+              <div class="ring-sub">Chapters</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="streak-row">
+          <span class="streak-flame">🔥</span>
+          <span class="streak-num" id="streak-display">0</span>
+          <div>
+            <div class="streak-label" id="streak-label">day streak</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);" id="streak-sub">Write 30+ min daily to keep it going</div>
+          </div>
+        </div>
+
+        <div class="today-card">
+          <div class="today-title">Today's Promise</div>
+          <div class="today-promise">30 minutes minimum writing</div>
+          <div class="today-stats">
+            <div class="today-stat">
+              <div class="val" id="today-min-display">0</div>
+              <div class="lbl">Minutes Today</div>
+            </div>
+            <div class="today-stat">
+              <div class="val" id="today-words-display">0</div>
+              <div class="lbl">Words Today</div>
+            </div>
+            <div class="today-stat">
+              <div class="val" id="today-pomos-display">0</div>
+              <div class="lbl">Pomodoros</div>
+            </div>
+          </div>
+          <div class="today-action">
+            <div class="progress-bar" style="background:rgba(255,255,255,0.2);">
+              <div class="progress-fill" id="daily-min-bar" style="background:rgba(255,255,255,0.8);width:0%;"></div>
+            </div>
+            <div style="font-size:0.72rem;margin-top:6px;opacity:0.75;" id="daily-min-status">0 / 30 minutes logged</div>
+          </div>
+        </div>
+
+        <button class="pomo-start-btn" onclick="switchTab('timer');startPomo();">
+          <div class="pomo-orb"></div>
+          Start 25-min Focus Block
+        </button>
+
+        <div class="section-pad">
+          <div class="section-label">Today's Checklist</div>
+          <div class="checklist" id="daily-checklist"></div>
+        </div>
+
+        <div class="section-pad" style="padding-top:0;">
+          <div class="section-label">Daily Spark</div>
+          <div class="card quote-card" id="daily-quote">
+            <div class="quote-text" id="quote-text"></div>
+            <div class="quote-attr" id="quote-attr"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PLANNER TAB -->
+      <div id="tab-planner" class="tab-panel" style="display:none;">
+        <div class="top-bar">
+          <h2>Book Planner</h2>
+          <button class="icon-btn" onclick="addChapter()" title="Add Chapter">+</button>
+        </div>
+        <div class="planner-header">
+          <div style="flex:1;">
+            <div style="font-size:0.75rem;color:var(--text-muted);">Total goal</div>
+            <div style="font-family:'DM Mono',monospace;font-size:1.1rem;color:var(--sage);" id="planner-goal-display"></div>
+          </div>
+          <div style="flex:1;text-align:right;">
+            <div style="font-size:0.75rem;color:var(--text-muted);">Words written</div>
+            <div style="font-family:'DM Mono',monospace;font-size:1.1rem;color:var(--amber);" id="planner-written-display">0</div>
+          </div>
+        </div>
+        <div class="chapter-list" id="chapter-list"></div>
+        <div style="padding:20px;">
+          <button class="btn btn-ghost w-full" onclick="addChapter()">+ Add Chapter</button>
+        </div>
+      </div>
+
+      <!-- TIMER TAB -->
+      <div id="tab-timer" class="tab-panel" style="display:none;">
+        <div class="top-bar">
+          <h2>Focus Timer</h2>
+          <button class="icon-btn" onclick="openTimerSettings()">⚙️</button>
+        </div>
+        <div class="pomo-screen">
+          <div class="pomo-chapter-select">
+            <label>Writing on:</label>
+            <select id="pomo-chapter-select" onchange="saveState()"></select>
+          </div>
+          <div class="pomo-sound-toggle" onclick="toggleSound()">
+            <div class="toggle-switch" id="sound-toggle"><div class="toggle-knob"></div></div>
+            <span id="sound-label">Ticking sound off</span>
+          </div>
+          <div class="pomo-orb-wrap">
+            <div class="pomo-orb-bg" id="pomo-orb">
+              <svg class="pomo-svg" viewBox="0 0 220 220">
+                <circle class="pomo-svg-track" cx="110" cy="110" r="100" transform="rotate(-90 110 110)"/>
+                <circle class="pomo-svg-prog" id="pomo-svg-prog" cx="110" cy="110" r="100" transform="rotate(-90 110 110)"
+                  stroke-dasharray="628" stroke-dashoffset="0"/>
+              </svg>
+              <div class="pomo-orb-pulse"></div>
+              <div class="pomo-time" id="pomo-time">25:00</div>
+              <div class="pomo-mode-label" id="pomo-mode-label">READY TO FOCUS</div>
+            </div>
+          </div>
+          <div class="pomo-controls">
+            <button class="pomo-ctrl-btn" onclick="resetPomo()" title="Reset">↺</button>
+            <button class="pomo-ctrl-btn primary" id="pomo-main-btn" onclick="togglePomo()">▶</button>
+            <button class="pomo-ctrl-btn" onclick="skipPhase()" title="Skip">⏭</button>
+          </div>
+          <div class="pomo-session-log card w-full" style="max-width:380px;">
+            <div class="section-label" style="margin-bottom:8px;">Today's Sessions</div>
+            <div id="session-log-list">
+              <div class="empty-state" style="padding:20px 0;"><div class="icon">⏱️</div><p>No sessions yet today</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WRITING STUDIO TAB -->
+      <div id="tab-studio" class="tab-panel" style="display:none;flex-direction:column;height:calc(100vh - 80px);">
+        <div class="studio-tabs" id="studio-tabs"></div>
+        <div class="studio-toolbar">
+          <button class="btn btn-ghost" style="padding:6px 12px;font-size:0.8rem;" onclick="document.execCommand('bold')"><b>B</b></button>
+          <button class="btn btn-ghost" style="padding:6px 12px;font-size:0.8rem;" onclick="document.execCommand('italic')"><i>I</i></button>
+          <button class="btn btn-ghost" style="padding:6px 12px;font-size:0.8rem;" onclick="document.execCommand('underline')"><u>U</u></button>
+          <div style="flex:1;"></div>
+          <button class="btn btn-ghost" style="padding:6px 12px;font-size:0.8rem;" onclick="toggleFocusMode()" id="focus-mode-btn">⛶ Focus</button>
+          <button class="btn btn-ghost" style="padding:6px 12px;font-size:0.8rem;" onclick="openExportModal()">↓ Export</button>
+        </div>
+        <div class="studio-editor-wrap">
+          <div class="studio-editor" id="studio-editor" contenteditable="true" data-placeholder="Begin writing here... Your words matter."></div>
+        </div>
+        <div class="studio-footer">
+          <span class="studio-word-count" id="studio-word-count">0 words</span>
+          <span id="studio-autosave-status">Auto-saving...</span>
+          <span id="studio-chapter-target"></span>
+        </div>
+      </div>
+
+      <!-- ANALYTICS TAB -->
+      <div id="tab-analytics" class="tab-panel" style="display:none;">
+        <div class="top-bar">
+          <h2>Analytics</h2>
+        </div>
+        <div class="section-pad">
+          <div class="section-label">Book Health Score</div>
+          <div class="card" style="margin-bottom:16px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+              <div>
+                <div style="font-family:'Playfair Display',serif;font-size:1.1rem;" id="health-label">Calculating...</div>
+                <div style="font-size:0.8rem;color:var(--text-muted);" id="health-sub"></div>
+              </div>
+              <div style="font-family:'DM Mono',monospace;font-size:2rem;color:var(--sage);" id="health-score">--</div>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" id="health-bar" style="width:0%"></div></div>
+          </div>
+        </div>
+        <div class="section-pad" style="padding-top:0;">
+          <div class="section-label">Writing Heatmap (Last 16 Weeks)</div>
+          <div class="heatmap-wrap">
+            <div id="heatmap-grid" class="heatmap-grid"></div>
+          </div>
+        </div>
+        <div class="section-pad" style="padding-top:0;">
+          <div class="section-label">Daily Word Output</div>
+          <div class="card chart-card" style="padding:12px;margin:0;">
+            <canvas id="words-chart" height="120"></canvas>
+          </div>
+        </div>
+        <div class="section-pad">
+          <div class="section-label">Badges Earned</div>
+          <div class="badge-grid" id="badge-grid"></div>
+        </div>
+        <div class="section-pad" style="padding-top:0;">
+          <div class="section-label">Theme Vault</div>
+          <div class="vault-add-row">
+            <textarea id="vault-input" placeholder="Capture an idea, quote, or insight..."></textarea>
+            <button class="btn btn-primary" style="align-self:flex-end;" onclick="addVaultItem()">Save</button>
+          </div>
+          <div id="vault-list"></div>
+        </div>
+      </div>
+
+      <!-- SETTINGS TAB -->
+      <div id="tab-settings" class="tab-panel" style="display:none;">
+        <div class="top-bar">
+          <h2>Settings</h2>
+        </div>
+        <div class="settings-section">
+          <div class="section-label">Pomodoro</div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-label">Work Duration</div>
+              <div class="settings-sub">Minutes per focus block</div>
+            </div>
+            <input type="number" id="set-work-dur" min="5" max="60" value="25" style="width:70px;text-align:center;">
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-label">Break Duration</div>
+              <div class="settings-sub">Minutes per break</div>
+            </div>
+            <input type="number" id="set-break-dur" min="1" max="30" value="5" style="width:70px;text-align:center;">
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-label">Daily Minimum</div>
+              <div class="settings-sub">Minutes required each day</div>
+            </div>
+            <input type="number" id="set-daily-min" min="15" max="120" value="30" style="width:70px;text-align:center;">
+          </div>
+        </div>
+        <div class="settings-section">
+          <div class="section-label">Appearance</div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-label">Dark Mode</div>
+            </div>
+            <div class="toggle-switch" id="dark-toggle" onclick="toggleTheme()"><div class="toggle-knob"></div></div>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-label">Focus Locked Mode</div>
+              <div class="settings-sub">Lock to writing during Pomodoro</div>
+            </div>
+            <div class="toggle-switch" id="lock-toggle" onclick="toggleLockMode()"><div class="toggle-knob"></div></div>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-label">Notifications</div>
+              <div class="settings-sub">Gentle writing reminders</div>
+            </div>
+            <button class="btn btn-secondary" style="font-size:0.8rem;padding:6px 12px;" onclick="requestNotifPermission()">Enable</button>
+          </div>
+        </div>
+        <div class="settings-section">
+          <div class="section-label">Book Info</div>
+          <div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:8px;">
+            <div class="settings-label">Title</div>
+            <input type="text" id="set-title" placeholder="Book title">
+          </div>
+          <div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:8px;">
+            <div class="settings-label">Total Word Goal</div>
+            <input type="number" id="set-word-goal" min="5000" max="100000" step="500">
+          </div>
+          <button class="btn btn-primary mt-12" onclick="saveSettings()">Save Settings</button>
+        </div>
+        <div class="settings-section">
+          <div class="section-label">Data</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <button class="btn btn-ghost" onclick="exportData()">📦 Export All Data (JSON)</button>
+            <button class="btn btn-ghost" onclick="document.getElementById('import-file').click()">📂 Import Data</button>
+            <input type="file" id="import-file" accept=".json" style="display:none;" onchange="importData(this)">
+            <button class="btn btn-danger" onclick="resetWizard()">🗑️ Reset & Start New Book</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- NAV BAR -->
+    <nav class="nav-bar">
+      <button class="nav-btn active" data-tab="dashboard" onclick="switchTab('dashboard')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </button>
+      <button class="nav-btn" data-tab="planner" onclick="switchTab('planner')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        Planner
+      </button>
+      <button class="nav-btn" data-tab="timer" onclick="switchTab('timer')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Timer
+      </button>
+      <button class="nav-btn" data-tab="studio" onclick="switchTab('studio')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Write
+      </button>
+      <button class="nav-btn" data-tab="analytics" onclick="switchTab('analytics')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Stats
+      </button>
+    </nav>
+  </div>
+</div>
+
+<script>
+// ======================================================
+// STATE & CONSTANTS
+// ======================================================
+const BOOK_THEMES = [
+  "The Myth of Constant Supervision",
+  "When Help Becomes a Crutch",
+  "The Gift of Struggle",
+  "Raising Problem-Solvers, Not Problem-Avoiders",
+  "The Courage to Let Them Fail",
+  "Building Resilience in the Age of Rescue",
+  "Natural Consequences: The Best Teacher",
+  "Boredom is Not an Emergency",
+  "The Long Game of Letting Go",
+  "Independence as an Act of Love"
+];
+
+const QUOTES = [
+  { text: "You cannot teach a man anything; you can only help him find it within himself.", attr: "— Galileo" },
+  { text: "The greatest gifts you can give your children are the roots of responsibility and the wings of independence.", attr: "— Denis Waitley" },
+  { text: "Overprotected children don't develop the inner resources they need to navigate an imperfect world.", attr: "— FocusScript Daily" },
+  { text: "Writing is thinking on paper. Every word you write today is a thought your reader will carry forever.", attr: "— William Zinsser" },
+  { text: "A child who is not allowed to fail is a child who is not allowed to grow.", attr: "— Your Book, Chapter by Chapter" },
+  { text: "Don't sit down and wait for the opportunities to come. Get up and make them.", attr: "— Madam C.J. Walker" },
+  { text: "The art of parenting is knowing when to step in, and when to stand back.", attr: "— FocusScript Daily" },
+  { text: "Done is better than perfect. The perfect manuscript is the one that exists.", attr: "— Yours, on a good day" },
+];
+
+const EASTER_EGGS = [
+  "You just gave yourself the space to grow — exactly what this book is about.",
+  "Five Pomodoros done. A chapter finished starts with exactly this kind of discipline.",
+  "You didn't quit when it got hard. That's the lesson your book teaches. You're living it.",
+  "Every paragraph you write is proof that self-reliance works. Keep going.",
+  "Your future reader needs this book. Your past self needed to write it. Keep them both in mind.",
+];
+
+const BADGES = [
+  { id: 'first-500', icon: '✍️', name: 'First 500', desc: 'Write 500 words', threshold: 500, type: 'words' },
+  { id: 'first-5k', icon: '📖', name: 'First 5K', desc: 'Write 5,000 words', threshold: 5000, type: 'words' },
+  { id: 'halfway', icon: '⚡', name: 'Halfway Hero', desc: 'Reach 50% word goal', threshold: 50, type: 'pct' },
+  { id: 'manuscript', icon: '🏆', name: 'Manuscript Master', desc: 'Complete the full word goal', threshold: 100, type: 'pct' },
+  { id: 'first-pomo', icon: '🍅', name: 'Tomato Fresh', desc: 'Complete first Pomodoro', threshold: 1, type: 'pomos' },
+  { id: 'ten-pomos', icon: '🔥', name: 'On Fire', desc: 'Complete 10 Pomodoros', threshold: 10, type: 'pomos' },
+  { id: 'streak-3', icon: '📅', name: '3-Day Streak', desc: 'Write 3 days in a row', threshold: 3, type: 'streak' },
+  { id: 'streak-7', icon: '🌟', name: 'Week Warrior', desc: 'Write 7 days in a row', threshold: 7, type: 'streak' },
+  { id: 'full-day', icon: '✅', name: 'Promise Kept', desc: 'Complete full daily minimum', threshold: 1, type: 'fulldays' },
+];
+
+let STATE = {
+  bookTitle: '', bookSubtitle: '', wordGoal: 17500,
+  chapters: [], vault: [], sessions: [],
+  todayDate: '', todayMinutes: 0, todayWords: 0, todayPomos: 0,
+  streak: 0, lastActiveDate: '', totalPomos: 0,
+  dailyData: {}, // { 'YYYY-MM-DD': { words, minutes, pomos } }
+  badges: [], fullDaysCount: 0,
+  settings: { workDur: 25, breakDur: 5, dailyMin: 30, sound: false, dark: false, locked: false },
+  checklist: [], // [{id, label, sub, done, type}]
+  customTasks: [],
 };
 
-// ─── VIRTUES (Complete) ───────────────────────────────────────────────────────
-const VIRTUES = {
-  L: { key:"L", label:"Love", icon:"❤️", tagline:"Others-first in a me-first culture", color:"#ff4d4d", bg:"#fff0f0", border:"#ff8c00",
-       scoreMeaning: "0=Never • 1=Rarely • 2=Sometimes • 3=Consistently puts others first",
-       strong: ["Celebrates teammates' success", "Shows genuine kindness", "Puts team above self"],
-       weak:   ["Selfish on and off the field", "Dismisses or ignores teammates", "Only cheers for own highlights"],
-       develop: ["After each game, name one teammate who helped you win", "Do one act of encouragement before you leave the field", "Pray: 'Lord, help me love my teammates the way You love me'"] },
-  P: { key:"P", label:"Peace", icon:"☮️", tagline:"Calm anchored in Christ", color:"#00b36b", bg:"#f0fff4", border:"#ff8c00",
-       scoreMeaning: "0=Constant anxiety • 1=Occasional calm • 2=Usually calm • 3=Peace that guards the heart",
-       strong: ["Stays composed under pressure", "Calms teammates in tense moments", "Bounces back quickly from mistakes"],
-       weak:   ["Anxious or panicked when things go wrong", "Spreads tension to teammates", "Dwells on errors during play"],
-       develop: ["Practice three slow breaths before any big moment", "Write down one worry this week and give it to God in prayer", "Memorize Phil. 4:7 — let it anchor your pregame routine"] },
-  S: { key:"S", label:"Self-Control", icon:"🛡️", tagline:"Responding instead of reacting", color:"#0077cc", bg:"#f0f8ff", border:"#ff8c00",
-       scoreMeaning: "0=Frequent outbursts • 1=Improving • 2=Usually controlled • 3=Strong self-discipline",
-       strong: ["Responds to bad calls without blowing up", "Keeps emotions in check under provocation", "Leads by example in discipline"],
-       weak:   ["Frequent outbursts or meltdowns", "Argues with officials or coaches", "Lets frustration hurt performance"],
-       develop: ["Identify your #1 trigger — name it, then make a plan for it", "After a bad call, count to 5 before you react", "Ask a trusted teammate to hold you accountable this week"] },
-  G: { key:"G", label:"Gentleness", icon:"🌿", tagline:"Strength under control", color:"#9c4dff", bg:"#f8f0ff", border:"#ff8c00",
-       scoreMeaning: "0=Often harsh • 1=Sometimes gentle • 2=Usually gentle • 3=Strength under control",
-       strong: ["Encourages struggling teammates", "Competes hard without being cruel", "Uses words that build up, not tear down"],
-       weak:   ["Often harsh or cutting with words", "Intimidates or belittles others", "Confuses meanness with toughness"],
-       develop: ["Before criticizing a teammate, ask: 'Is this kind AND true?'", "Find one struggling player this week and intentionally encourage them", "Journal: where did strength AND gentleness show up together today?"] },
-  H: { key:"H", label:"Humility", icon:"🙏", tagline:"Playing from identity, not for identity", color:"#ff8c00", bg:"#fff8f0", border:"#ff8c00",
-       scoreMeaning: "0=Very prideful • 1=Occasional humility • 2=Growing humility • 3=Consistently humble",
-       strong: ["Credits teammates and coaches for success", "Accepts coaching without defensiveness", "Secure enough to celebrate others"],
-       weak:   ["Takes credit, deflects blame", "Gets defensive when corrected", "Needs to be the star"],
-       develop: ["After your next win, publicly credit two specific teammates", "When corrected by a coach, respond: 'Thank you, I'll work on that'", "Ask yourself: 'Am I playing TO prove something or FROM knowing who I am?'"] },
-  Gr: { key:"Gr", label:"Gratitude", icon:"🙌", tagline:"Thankful in all circumstances", color:"#ffaa00", bg:"#fffdf0", border:"#ff8c00",
-       scoreMeaning: "0=Very entitled • 1=Occasional thanks • 2=Usually grateful • 3=Thankful in all circumstances",
-       strong: ["Thanks coaches, officials, and opponents", "Grateful for the opportunity to compete", "Positive attitude win or lose"],
-       weak:   ["Entitled attitude about playing time or roles", "Rarely thanks others", "Complains about conditions, calls, or teammates"],
-       develop: ["Start every practice with one thing you're grateful for about this team", "Write a one-line thank-you to a coach or teammate this week", "After a loss, find three genuine things to be thankful for before you leave"] },
-  J: { key:"J", label:"Joy", icon:"🎉", tagline:"Delight that outlasts the score", color:"#ff6600", bg:"#fff4f0", border:"#ff8c00",
-       scoreMeaning: "0=Joy is gone • 1=Rare joy • 2=Usually joyful • 3=Consistent delight",
-       strong: ["Genuine enjoyment of the game", "Joy that doesn't depend on the scoreboard", "Lifts the energy of those around them"],
-       weak:   ["Only happy when winning", "Drains team energy with negativity", "Has lost the love of the game"],
-       develop: ["Recall why you first fell in love with this sport — write it down", "Find one moment in each practice to just enjoy the game", "Remind yourself: the scoreboard is temporary, but who you're becoming is not"] }
-};
+let POMO = { running: false, break: false, seconds: 0, interval: null, totalSeconds: 0 };
+let AUTO_SAVE_TIMER = null;
+let CURRENT_STUDIO_CHAPTER = 0; // index into chapters + 'freewrite'
+let IS_FOCUS_MODE = false;
+let audioCtx = null;
+let obCurrentStep = 0;
 
-const SCORE_LABELS = ["Missing", "Emerging", "Developing", "Strong"];
-
-// ─── HELPERS ──────────────────────────────────────────────────────────────────
-function getCombo(scores) {
-  const strong = Object.values(scores).filter(v => v === 3).length;
-  const developing = Object.values(scores).filter(v => v >= 2).length;
-  const avg = (Object.values(scores).reduce((a,b) => a + b, 0) / 7).toFixed(1);
-
-  if (strong >= 5) return { label: "Kingdom Competitor", icon: "🏆", desc: `Avg ${avg}/3`, color: C.orange, progress: 95 };
-  if (developing >= 6) return { label: "Strong Disciple", icon: "🌟", desc: `Avg ${avg}/3`, color: C.green, progress: 85 };
-  return { label: "Developing Disciple", icon: "🌱", desc: `Avg ${avg}/3`, color: "#fd7e14", progress: Math.round(developing / 7 * 100) };
+// ======================================================
+// STORAGE
+// ======================================================
+function saveState() {
+  try { localStorage.setItem('fs_state', JSON.stringify(STATE)); } catch(e) {}
 }
 
-function calculateTeamProgress(athletes) {
-  if (athletes.length === 0) return { avgScore: "0.0", strongPercent: 0, totalAthletes: 0 };
-  let totalScore = 0, totalStrong = 0;
-  const totalVirtues = athletes.length * 7;
+function loadState() {
+  try {
+    const raw = localStorage.getItem('fs_state');
+    if (raw) { STATE = { ...STATE, ...JSON.parse(raw) }; return true; }
+  } catch(e) {}
+  return false;
+}
 
-  athletes.forEach(a => {
-    const scores = Object.values(a.scores || {});
-    totalScore += scores.reduce((a,b) => a + b, 0);
-    totalStrong += scores.filter(v => v === 3).length;
+// ======================================================
+// ONBOARDING
+// ======================================================
+function obNext() {
+  const steps = document.querySelectorAll('.ob-step');
+  const dots = document.querySelectorAll('.ob-dot');
+  steps[obCurrentStep].classList.remove('active');
+  dots[obCurrentStep].classList.remove('active');
+  dots[obCurrentStep].classList.add('done');
+  obCurrentStep++;
+  steps[obCurrentStep].classList.add('active');
+  dots[obCurrentStep].classList.add('active');
+  if (obCurrentStep === 3) {
+    document.getElementById('ob-ch-preview').textContent = document.getElementById('ob-chapters').value + ' chapters';
+  }
+}
+
+function obPrev() {
+  const steps = document.querySelectorAll('.ob-step');
+  const dots = document.querySelectorAll('.ob-dot');
+  steps[obCurrentStep].classList.remove('active');
+  dots[obCurrentStep].classList.remove('active');
+  obCurrentStep--;
+  dots[obCurrentStep].classList.remove('done');
+  dots[obCurrentStep].classList.add('active');
+  steps[obCurrentStep].classList.add('active');
+}
+
+function updateWordGoalDisplay() {
+  const val = parseInt(document.getElementById('ob-word-goal').value);
+  document.getElementById('ob-word-goal-display').textContent = val.toLocaleString() + ' words';
+}
+
+function generateAndLaunch() {
+  STATE.bookTitle = document.getElementById('ob-title').value.trim() || 'Your Kid is the Worst';
+  STATE.bookSubtitle = document.getElementById('ob-subtitle').value.trim();
+  STATE.wordGoal = parseInt(document.getElementById('ob-word-goal').value);
+  const numChapters = parseInt(document.getElementById('ob-chapters').value) || 8;
+  const targetPerChapter = Math.floor(STATE.wordGoal / numChapters);
+  STATE.chapters = [];
+  for (let i = 0; i < numChapters; i++) {
+    STATE.chapters.push({
+      id: Date.now() + i,
+      title: BOOK_THEMES[i] || `Chapter ${i + 1}: Your Theme Here`,
+      target: targetPerChapter + (i === 0 ? STATE.wordGoal - targetPerChapter * numChapters : 0),
+      words: 0, content: '', status: 'not-started',
+      milestones: { outline: false, draft: false, edit: false }
+    });
+  }
+  STATE.todayDate = getToday();
+  generateChecklist();
+  saveState();
+  showApp();
+}
+
+// ======================================================
+// APP INIT
+// ======================================================
+function showApp() {
+  document.getElementById('screen-onboarding').classList.remove('active');
+  document.getElementById('screen-app').classList.add('active');
+  applyTheme();
+  loadSettings();
+  buildStudioTabs();
+  buildPlannerChapterSelect();
+  renderAll();
+  scheduleAutoSave();
+  checkDateRollover();
+}
+
+function renderAll() {
+  updateDashboard();
+  renderChapterList();
+  renderAnalytics();
+  renderChecklist();
+}
+
+function checkDateRollover() {
+  const today = getToday();
+  if (STATE.todayDate !== today) {
+    // Save yesterday's data
+    if (STATE.todayDate) {
+      if (!STATE.dailyData) STATE.dailyData = {};
+      STATE.dailyData[STATE.todayDate] = {
+        words: STATE.todayWords, minutes: STATE.todayMinutes, pomos: STATE.todayPomos
+      };
+      // Check if daily min was met
+      if (STATE.todayMinutes >= (STATE.settings.dailyMin || 30)) {
+        STATE.fullDaysCount = (STATE.fullDaysCount || 0) + 1;
+        // Streak logic
+        const yesterday = getDateStr(-1);
+        if (STATE.lastActiveDate === yesterday || STATE.lastActiveDate === STATE.todayDate) {
+          STATE.streak = (STATE.streak || 0) + 1;
+        } else {
+          STATE.streak = 1;
+        }
+        STATE.lastActiveDate = STATE.todayDate;
+        showToast('🔥 Day complete! Streak: ' + STATE.streak + ' days');
+      } else if (STATE.todayMinutes > 0) {
+        STATE.streak = 0;
+      }
+    }
+    STATE.todayDate = today;
+    STATE.todayMinutes = 0;
+    STATE.todayWords = 0;
+    STATE.todayPomos = 0;
+    STATE.sessions = [];
+    generateChecklist();
+    saveState();
+  }
+}
+
+function getToday() {
+  return new Date().toISOString().split('T')[0];
+}
+function getDateStr(offset = 0) {
+  const d = new Date(); d.setDate(d.getDate() + offset);
+  return d.toISOString().split('T')[0];
+}
+
+function scheduleAutoSave() {
+  clearInterval(AUTO_SAVE_TIMER);
+  AUTO_SAVE_TIMER = setInterval(() => {
+    if (CURRENT_STUDIO_CHAPTER !== null) {
+      const ed = document.getElementById('studio-editor');
+      if (ed) {
+        const content = ed.innerHTML;
+        if (CURRENT_STUDIO_CHAPTER === 'freewrite') {
+          STATE.freewrite = content;
+        } else {
+          if (STATE.chapters[CURRENT_STUDIO_CHAPTER]) {
+            const oldWords = STATE.chapters[CURRENT_STUDIO_CHAPTER].words;
+            const newWords = countWords(ed.innerText || ed.textContent);
+            const diff = newWords - oldWords;
+            STATE.chapters[CURRENT_STUDIO_CHAPTER].content = content;
+            STATE.chapters[CURRENT_STUDIO_CHAPTER].words = newWords;
+            if (diff > 0) {
+              STATE.todayWords += diff;
+            }
+          }
+        }
+      }
+    }
+    saveState();
+    checkBadges();
+    const el = document.getElementById('studio-autosave-status');
+    if (el) { el.textContent = 'Saved ' + new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}); }
+  }, 10000);
+}
+
+// ======================================================
+// DASHBOARD
+// ======================================================
+function updateDashboard() {
+  const totalWords = STATE.chapters.reduce((s, c) => s + (c.words || 0), 0);
+  const wordPct = Math.min(100, Math.round(totalWords / STATE.wordGoal * 100));
+  const doneChapters = STATE.chapters.filter(c => c.status === 'done').length;
+  const chPct = STATE.chapters.length ? Math.round(doneChapters / STATE.chapters.length * 100) : 0;
+
+  // Rings
+  setRing('ring-words', wordPct);
+  setRing('ring-chapters', chPct);
+  document.getElementById('ring-words-pct').textContent = wordPct + '%';
+  document.getElementById('ring-chapters-pct').textContent = chPct + '%';
+
+  // Stats
+  document.getElementById('streak-display').textContent = STATE.streak || 0;
+  document.getElementById('today-min-display').textContent = Math.round(STATE.todayMinutes || 0);
+  document.getElementById('today-words-display').textContent = (STATE.todayWords || 0).toLocaleString();
+  document.getElementById('today-pomos-display').textContent = STATE.todayPomos || 0;
+
+  const dailyMin = STATE.settings.dailyMin || 30;
+  const minPct = Math.min(100, ((STATE.todayMinutes || 0) / dailyMin) * 100);
+  document.getElementById('daily-min-bar').style.width = minPct + '%';
+  document.getElementById('daily-min-status').textContent =
+    Math.round(STATE.todayMinutes || 0) + ' / ' + dailyMin + ' minutes logged' +
+    (minPct >= 100 ? ' ✓' : '');
+
+  // Quote
+  const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+  const q = QUOTES[dayOfYear % QUOTES.length];
+  document.getElementById('quote-text').textContent = q.text;
+  document.getElementById('quote-attr').textContent = q.attr;
+}
+
+function setRing(id, pct) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const circumference = 377;
+  const offset = circumference - (pct / 100) * circumference;
+  el.style.strokeDashoffset = offset;
+}
+
+// ======================================================
+// CHECKLIST
+// ======================================================
+function generateChecklist() {
+  const dailyMin = STATE.settings.dailyMin || 30;
+  STATE.checklist = [
+    { id: 'daily-min', label: `Log ${dailyMin} minutes of writing`, sub: 'Linked to your Pomodoro timer', done: (STATE.todayMinutes || 0) >= dailyMin, type: 'auto' },
+    { id: 'review-words', label: 'Review yesterday\'s writing', sub: 'Opens your last active chapter', done: false, type: 'review' },
+    { id: 'theme-vault', label: 'Add one idea to the Theme Vault', sub: 'A thought, quote, or insight', done: false, type: 'vault' },
+    { id: 'milestone', label: 'Mark one chapter milestone complete', sub: 'Outline, draft, or edit', done: false, type: 'milestone' },
+    ...(STATE.customTasks || []).map(t => ({ id: 'custom-' + t.id, label: t.label, done: t.done, type: 'custom' }))
+  ];
+}
+
+function renderChecklist() {
+  const cont = document.getElementById('daily-checklist');
+  if (!cont) return;
+  generateChecklist(); // refresh auto-ones
+  cont.innerHTML = STATE.checklist.map(item => `
+    <div class="check-item ${item.done ? 'done' : ''}" onclick="toggleCheckItem('${item.id}')">
+      <div class="check-box">${item.done ? '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="1,6 4,9 11,2" stroke="white" stroke-width="2"/></svg>' : ''}</div>
+      <div>
+        <div class="check-label">${item.label}</div>
+        ${item.sub ? `<div class="check-sub">${item.sub}</div>` : ''}
+      </div>
+    </div>
+  `).join('');
+
+  // Add custom task button
+  cont.innerHTML += `<button class="btn btn-ghost w-full mt-8" style="font-size:0.82rem;" onclick="addCustomTask()">+ Add custom task</button>`;
+}
+
+function toggleCheckItem(id) {
+  const item = STATE.checklist.find(i => i.id === id);
+  if (!item) return;
+  if (item.type === 'auto') { showToast('This completes automatically when you hit 30 min!'); return; }
+  if (item.type === 'review') { switchTab('studio'); }
+  if (item.type === 'vault') { switchTab('analytics'); setTimeout(() => document.getElementById('vault-input').focus(), 300); }
+  if (item.type === 'milestone') { switchTab('planner'); }
+  item.done = !item.done;
+  // Sync custom tasks
+  if (item.type === 'custom') {
+    const ct = STATE.customTasks.find(t => 'custom-' + t.id === id);
+    if (ct) ct.done = item.done;
+  }
+  saveState();
+  renderChecklist();
+  checkAllDone();
+}
+
+function checkAllDone() {
+  const allDone = STATE.checklist.every(i => i.done);
+  if (allDone) {
+    showToast('🎉 All tasks complete! Amazing session!');
+    launchConfetti();
+  }
+}
+
+function addCustomTask() {
+  openModal(`
+    <div class="modal-title">Add Custom Task</div>
+    <div style="margin-bottom:16px;">
+      <label>Task Label</label>
+      <input type="text" id="custom-task-input" placeholder="e.g. Research chapter 3 stats">
+    </div>
+    <button class="btn btn-primary w-full" onclick="saveCustomTask()">Add Task</button>
+  `);
+}
+
+function saveCustomTask() {
+  const label = document.getElementById('custom-task-input').value.trim();
+  if (!label) return;
+  if (!STATE.customTasks) STATE.customTasks = [];
+  STATE.customTasks.push({ id: Date.now(), label, done: false });
+  saveState();
+  closeModal();
+  renderChecklist();
+}
+
+// ======================================================
+// CHAPTER PLANNER
+// ======================================================
+function renderChapterList() {
+  const list = document.getElementById('chapter-list');
+  if (!list) return;
+  const totalWords = STATE.chapters.reduce((s, c) => s + (c.words || 0), 0);
+  document.getElementById('planner-goal-display').textContent = STATE.wordGoal.toLocaleString() + ' words';
+  document.getElementById('planner-written-display').textContent = totalWords.toLocaleString();
+
+  list.innerHTML = STATE.chapters.map((ch, i) => {
+    const pct = ch.target ? Math.min(100, Math.round(ch.words / ch.target * 100)) : 0;
+    const statusColors = { 'not-started': 'tag-gray', 'drafting': 'tag-blue', 'revising': 'tag-amber', 'done': 'tag-green' };
+    const statusLabels = { 'not-started': 'Not Started', 'drafting': 'Drafting', 'revising': 'Revising', 'done': 'Done' };
+    return `
+      <div class="chapter-card" id="chapter-card-${i}" draggable="true"
+        ondragstart="dragStart(event,${i})" ondragover="dragOver(event,${i})" ondrop="drop(event,${i})" ondragleave="dragLeave(event,${i})">
+        <div class="chapter-top" onclick="toggleChapterExpand(${i})">
+          <div class="chapter-drag">⠿</div>
+          <div class="chapter-num">${i + 1}</div>
+          <div class="chapter-title-wrap">
+            <div class="chapter-title">${ch.title}</div>
+            <div class="chapter-meta">${(ch.words || 0).toLocaleString()} / ${(ch.target || 0).toLocaleString()} words</div>
+          </div>
+          <span class="tag ${statusColors[ch.status] || 'tag-gray'}">${statusLabels[ch.status] || 'Not Started'}</span>
+        </div>
+        <div class="chapter-progress-bar"><div class="chapter-progress-fill" style="width:${pct}%"></div></div>
+        <div class="chapter-expanded" id="chapter-exp-${i}" style="display:none;">
+          <div style="margin-bottom:10px;">
+            <label>Chapter Title</label>
+            <input type="text" value="${ch.title}" onchange="updateChapter(${i},'title',this.value)" style="margin-bottom:8px;">
+            <label>Status</label>
+            <select onchange="updateChapter(${i},'status',this.value)">
+              <option value="not-started" ${ch.status==='not-started'?'selected':''}>Not Started</option>
+              <option value="drafting" ${ch.status==='drafting'?'selected':''}>Drafting</option>
+              <option value="revising" ${ch.status==='revising'?'selected':''}>Revising</option>
+              <option value="done" ${ch.status==='done'?'selected':''}>Done</option>
+            </select>
+          </div>
+          <div class="chapter-mini-check">
+            <div class="mini-check-row ${ch.milestones.outline ? 'done' : ''}" onclick="toggleMilestone(${i},'outline')">
+              <div class="mini-check-box">${ch.milestones.outline ? '✓' : ''}</div>
+              <span>Outline complete</span>
+            </div>
+            <div class="mini-check-row ${ch.milestones.draft ? 'done' : ''}" onclick="toggleMilestone(${i},'draft')">
+              <div class="mini-check-box">${ch.milestones.draft ? '✓' : ''}</div>
+              <span>First draft done</span>
+            </div>
+            <div class="mini-check-row ${ch.milestones.edit ? 'done' : ''}" onclick="toggleMilestone(${i},'edit')">
+              <div class="mini-check-box">${ch.milestones.edit ? '✓' : ''}</div>
+              <span>Self-edit complete</span>
+            </div>
+          </div>
+          <div class="word-input-row">
+            <div style="flex:1;">
+              <label>Word Target Override</label>
+              <input type="number" value="${ch.target}" onchange="updateChapter(${i},'target',parseInt(this.value)||0)">
+            </div>
+          </div>
+          <div class="chapter-actions">
+            <button class="btn btn-secondary" style="font-size:0.8rem;padding:6px 12px;" onclick="openChapterInStudio(${i})">✏️ Write</button>
+            <button class="btn btn-ghost" style="font-size:0.8rem;padding:6px 12px;" onclick="rebalanceChapters(${i})">⚖️ Rebalance</button>
+            <button class="btn btn-danger" style="font-size:0.8rem;padding:6px 12px;" onclick="deleteChapter(${i})">🗑️ Delete</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function toggleChapterExpand(i) {
+  const exp = document.getElementById('chapter-exp-' + i);
+  if (exp) exp.style.display = exp.style.display === 'none' ? 'block' : 'none';
+}
+
+function updateChapter(i, key, val) {
+  STATE.chapters[i][key] = val;
+  saveState();
+  renderChapterList();
+  buildStudioTabs();
+  buildPlannerChapterSelect();
+}
+
+function toggleMilestone(i, key) {
+  STATE.chapters[i].milestones[key] = !STATE.chapters[i].milestones[key];
+  saveState();
+  renderChapterList();
+}
+
+function addChapter() {
+  const target = Math.floor(STATE.wordGoal / (STATE.chapters.length + 1));
+  // Rebalance existing
+  STATE.chapters.forEach(c => { c.target = target; });
+  STATE.chapters.push({
+    id: Date.now(),
+    title: `Chapter ${STATE.chapters.length + 1}: Your Theme Here`,
+    target, words: 0, content: '', status: 'not-started',
+    milestones: { outline: false, draft: false, edit: false }
   });
-
-  const avgScore = (totalScore / totalVirtues).toFixed(1);
-  const strongPercent = Math.round((totalStrong / totalVirtues) * 100);
-
-  return { avgScore, strongPercent, totalAthletes: athletes.length };
+  saveState();
+  renderChapterList();
+  buildStudioTabs();
+  buildPlannerChapterSelect();
+  showToast('Chapter added and targets rebalanced');
 }
 
-// ─── MODALS ───────────────────────────────────────────────────────────────────
-function Modal({title, onClose, children}) {
-  return (
-    <div style={{position:"fixed", inset:0, background:"rgba(0,0,0,0.75)", zIndex:500, display:"flex", alignItems:"center", justifyContent:"center"}} onClick={e=>e.target===e.currentTarget&&onClose()}>
-      <div style={{background:"#fff", borderRadius:16, width:"92%", maxWidth:720, maxHeight:"92vh", overflow:"hidden", boxShadow:"0 25px 70px rgba(0,0,0,0.25)"}}>
-        <div style={{padding:"18px 24px", borderBottom:"1px solid #dee2e6", display:"flex", justifyContent:"space-between", alignItems:"center"}}>
-          <span style={{fontSize:21, fontWeight:800, color:C.orange}}>{title}</span>
-          <button onClick={onClose} style={{fontSize:24, background:"none", border:"none", color:"#666"}}>✕</button>
-        </div>
-        <div style={{padding:24, overflowY:"auto", maxHeight:"78vh"}}>{children}</div>
-      </div>
-    </div>
-  );
+function deleteChapter(i) {
+  if (!confirm(`Delete "${STATE.chapters[i].title}"? This will remove all content.`)) return;
+  STATE.chapters.splice(i, 1);
+  rebalanceAll();
+  saveState();
+  renderChapterList();
+  buildStudioTabs();
+  buildPlannerChapterSelect();
 }
 
-function ConfirmDelete({name, onConfirm, onCancel}) {
-  return (
-    <Modal title="Delete Athlete" onClose={onCancel}>
-      <p style={{fontSize:16, marginBottom:24}}>Are you sure you want to permanently delete <strong>{name}</strong>?</p>
-      <p style={{color:"#ef4444", marginBottom:24}}>This cannot be undone.</p>
-      <div style={{display:"flex", gap:12, justifyContent:"flex-end"}}>
-        <button onClick={onCancel} style={{padding:"12px 24px", border:"none", background:"#ddd", borderRadius:10}}>Cancel</button>
-        <button onClick={onConfirm} style={{padding:"12px 28px", border:"none", background:"#ef4444", color:"#fff", borderRadius:10, fontWeight:700}}>Yes, Delete</button>
-      </div>
-    </Modal>
-  );
+function rebalanceAll() {
+  const target = Math.floor(STATE.wordGoal / Math.max(1, STATE.chapters.length));
+  STATE.chapters.forEach(c => { c.target = target; });
 }
 
-// ─── EDIT MODAL ───────────────────────────────────────────────────────────────
-function EditModal({person, onSave, onClose}) {
-  const [data, setData] = useState({...person, notes: person.notes || ""});
-
-  const updateScore = (key, value) => setData(prev => ({...prev, scores: {...prev.scores, [key]: Number(value)}}));
-
-  return (
-    <Modal title={data.id ? "Edit Athlete" : "Add New Athlete"} onClose={onClose}>
-      <input placeholder="Athlete Name *" value={data.name||""} onChange={e=>setData({...data,name:e.target.value})} style={{width:"100%", padding:14, fontSize:17, border:`2px solid ${C.border}`, borderRadius:10, marginBottom:12}} />
-      <input placeholder="Role / Team (optional)" value={data.role||""} onChange={e=>setData({...data,role:e.target.value})} style={{width:"100%", padding:14, fontSize:17, border:`2px solid ${C.border}`, borderRadius:10, marginBottom:20}} />
-
-      <div style={{marginBottom:20}}>
-        <div style={{fontWeight:700, color:C.orange, marginBottom:12}}>Score Each Virtue (0–3)</div>
-        {Object.values(VIRTUES).map(t => (
-          <div key={t.key} style={{marginBottom:16, padding:16, background:"#fff", border:`1px solid ${t.border}`, borderRadius:12}}>
-            <div style={{display:"flex", alignItems:"center", gap:12, marginBottom:8}}>
-              <span style={{fontSize:28}}>{t.icon}</span>
-              <div style={{flex:1, fontWeight:700, color:t.color}}>{t.label}</div>
-            </div>
-            <div style={{fontSize:13, color:"#555", marginBottom:10}}>{t.scoreMeaning}</div>
-            <div style={{display:"flex", gap:6}}>
-              {[0,1,2,3].map(n => (
-                <button key={n} onClick={()=>updateScore(t.key,n)} style={{flex:1, padding:"10px", borderRadius:8, background: data.scores[t.key]===n ? C.orange : "#f1f3f5", color: data.scores[t.key]===n ? "#fff" : "#333", fontWeight:700}}>
-                  {n}
-                </button>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div style={{marginBottom:20}}>
-        <div style={{fontWeight:700, marginBottom:8}}>Notes / Observations / Prayers</div>
-        <textarea value={data.notes} onChange={e=>setData({...data, notes:e.target.value})} placeholder="Key moments, growth areas, specific prayers..." style={{width:"100%", height:130, padding:14, border:`2px solid ${C.border}`, borderRadius:10, resize:"vertical"}} />
-      </div>
-
-      <div style={{display:"flex", gap:12, justifyContent:"flex-end"}}>
-        <button onClick={onClose} style={{padding:"12px 24px", border:"none", background:"#ddd", borderRadius:10}}>Cancel</button>
-        <button onClick={()=>onSave(data)} style={{padding:"12px 32px", border:"none", background:C.orange, color:"#fff", borderRadius:10, fontWeight:700}} disabled={!data.name?.trim()}>💾 Save Changes</button>
-      </div>
-    </Modal>
-  );
+function rebalanceChapters(exceptIndex) {
+  const remaining = STATE.wordGoal - (STATE.chapters[exceptIndex].words || 0);
+  const target = Math.floor(remaining / Math.max(1, STATE.chapters.length - 1));
+  STATE.chapters.forEach((c, i) => { if (i !== exceptIndex) c.target = target; });
+  saveState();
+  renderChapterList();
+  showToast('Word targets rebalanced');
 }
 
-// ─── PERSON DETAIL ────────────────────────────────────────────────────────────
-function PersonDetail({person, onClose, onEdit}) {
-  const [tab, setTab] = useState("assess");
-  const combo = getCombo(person.scores);
-
-  return (
-    <Modal title={person.name} onClose={onClose}>
-      <div style={{display:"flex", justifyContent:"space-between", marginBottom:20}}>
-        <div>
-          <div style={{fontSize:52}}>{combo.icon}</div>
-          <div style={{fontSize:24, fontWeight:800, color:combo.color}}>{combo.label}</div>
-        </div>
-        <button onClick={()=>{ onEdit(person); onClose(); }} style={{background:C.orange, color:"#fff", border:"none", padding:"10px 22px", borderRadius:10, fontWeight:700}}>✏ Edit</button>
-      </div>
-
-      <div style={{marginBottom:24}}>
-        <div style={{display:"flex", justifyContent:"space-between", fontSize:14, marginBottom:8}}>
-          <span>Character Progress</span>
-          <span>{combo.progress}%</span>
-        </div>
-        <div className="progress-bar">
-          <div className="progress-fill" style={{width: `${combo.progress}%`, background: combo.progress > 80 ? "linear-gradient(90deg,#00b36b,#34d399)" : combo.progress > 50 ? "linear-gradient(90deg,#ff8c00,#ffaa00)" : "#dc3545"}} />
-        </div>
-        <div style={{fontSize:13, color:C.textMuted, marginTop:6}}>
-          Last updated: {person.lastUpdated ? new Date(person.lastUpdated).toLocaleDateString() : "Never"}
-        </div>
-      </div>
-
-      <div style={{display:"flex", borderBottom:"3px solid #ff8c00", marginBottom:20}}>
-        {["assess","develop","notes"].map(t => (
-          <button key={t} onClick={()=>setTab(t)} style={{flex:1, padding:"14px", fontWeight:700, background:tab===t?C.orange:"#f1f3f5", color:tab===t?"#fff":"#333", border:"none"}}>
-            {t==="assess"?"📊 Profile":t==="develop"?"🛠 Develop":"📝 Notes"}
-          </button>
-        ))}
-      </div>
-
-      {tab==="assess" && Object.entries(person.scores).map(([k,v]) => {
-        const t = VIRTUES[k];
-        const showHas = v >= 2;
-        return (
-          <div key={k} style={{marginBottom:20, background:"#fff", border:`2px solid ${t.border}`, borderRadius:14, overflow:"hidden"}}>
-            <div style={{background:t.bg, padding:"16px 20px", display:"flex", alignItems:"center", gap:16}}>
-              <span style={{fontSize:42}}>{t.icon}</span>
-              <div style={{flex:1}}><div style={{fontSize:21, fontWeight:800, color:t.color}}>{t.label}</div></div>
-              <span style={{fontSize:18, fontWeight:700}}>{v}/3</span>
-            </div>
-            <div style={{padding:"20px"}}>
-              {(showHas ? t.strong : t.weak).map((s,i) => (
-                <div key={i} style={{marginBottom:6}}>{showHas?"→":"–"} {s}</div>
-              ))}
-            </div>
-          </div>
-        );
-      })}
-
-      {tab==="develop" && (
-        <div>
-          {Object.entries(person.scores).map(([k,v]) => {
-            const t = VIRTUES[k];
-            return (
-              <div key={k} style={{marginBottom:20, background:"#fff", border:`2px solid ${t.border}`, borderRadius:14, overflow:"hidden"}}>
-                <div style={{background:t.bg, padding:"14px 20px", display:"flex", alignItems:"center", gap:12}}>
-                  <span style={{fontSize:28}}>{t.icon}</span>
-                  <div style={{fontSize:18, fontWeight:800, color:t.color, flex:1}}>{t.label}</div>
-                  <span style={{fontSize:14, color:C.textMuted, background:"#fff", padding:"4px 10px", borderRadius:20, fontWeight:700}}>{SCORE_LABELS[v]}</span>
-                </div>
-                <div style={{padding:"16px 20px"}}>
-                  {t.develop.map((step,i) => (
-                    <div key={i} style={{display:"flex", gap:12, marginBottom:10, alignItems:"flex-start"}}>
-                      <span style={{background:C.orange, color:"#fff", borderRadius:"50%", width:22, height:22, display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, fontWeight:800, flexShrink:0}}>{i+1}</span>
-                      <span style={{fontSize:14, color:C.text, lineHeight:1.5}}>{step}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {tab==="notes" && (
-        <div style={{background:"#fff", border:`1px solid ${C.border}`, borderRadius:12, padding:24, minHeight:200, whiteSpace:"pre-wrap", fontSize:15}}>
-          {person.notes || "No notes added yet."}
-        </div>
-      )}
-    </Modal>
-  );
+// Drag and drop
+let dragSrc = null;
+function dragStart(e, i) { dragSrc = i; e.currentTarget.classList.add('dragging'); }
+function dragOver(e, i) { e.preventDefault(); document.getElementById('chapter-card-' + i)?.classList.add('drag-over'); }
+function dragLeave(e, i) { document.getElementById('chapter-card-' + i)?.classList.remove('drag-over'); }
+function drop(e, i) {
+  e.preventDefault();
+  document.getElementById('chapter-card-' + i)?.classList.remove('drag-over');
+  if (dragSrc === null || dragSrc === i) return;
+  const moved = STATE.chapters.splice(dragSrc, 1)[0];
+  STATE.chapters.splice(i, 0, moved);
+  dragSrc = null;
+  saveState();
+  renderChapterList();
+  buildStudioTabs();
+  buildPlannerChapterSelect();
 }
 
-const BLANK_ATHLETE = { id:"", name:"", role:"", notes:"", scores:{L:1,P:1,S:1,G:1,H:1,Gr:1,J:1}, lastUpdated: null };
+// ======================================================
+// POMODORO
+// ======================================================
+function buildPlannerChapterSelect() {
+  const sel = document.getElementById('pomo-chapter-select');
+  if (!sel) return;
+  sel.innerHTML = STATE.chapters.map((c, i) => `<option value="${i}">${c.title}</option>`).join('') +
+    '<option value="freewrite">Freewrite / Research</option>';
+}
 
-// ─── MAIN APP ─────────────────────────────────────────────────────────────────
-function App() {
-  const [tab, setTab] = useState("athletes");
-  const [athletes, setAthletes] = useState(() => load("awaygame_athletes_v1", []));
-  const [editing, setEditing] = useState(null);
-  const [viewing, setViewing] = useState(null);
-  const [deleteConfirm, setDeleteConfirm] = useState(null);
+function getPomoSeconds() {
+  return POMO.break
+    ? (STATE.settings.breakDur || 5) * 60
+    : (STATE.settings.workDur || 25) * 60;
+}
 
-  function saveAthlete(p) {
-    const updated = {...p, id: p.id || uid(), lastUpdated: Date.now()};
-    const next = p.id ? athletes.map(x => x.id === p.id ? updated : x) : [...athletes, updated];
-    setAthletes(next);
-    save("awaygame_athletes_v1", next);
-    setEditing(null);
+function startPomo() {
+  if (POMO.running) return;
+  if (!POMO.seconds) POMO.seconds = getPomoSeconds();
+  POMO.totalSeconds = getPomoSeconds();
+  POMO.running = true;
+  document.getElementById('pomo-main-btn').textContent = '⏸';
+  document.getElementById('pomo-mode-label').textContent = POMO.break ? 'BREAK TIME' : 'FOCUS';
+  if (STATE.settings.locked && !POMO.break) showLockedOverlay();
+  POMO.interval = setInterval(tickPomo, 1000);
+  if (STATE.settings.sound) startTicking();
+}
+
+function tickPomo() {
+  POMO.seconds--;
+  if (POMO.seconds <= 0) { endPhase(); return; }
+  const totalSecs = getPomoSeconds();
+  if (!POMO.break) {
+    STATE.todayMinutes = (STATE.todayMinutes || 0) + 1/60;
+    saveState();
+    updateDashboard();
+    renderChecklist();
+  }
+  updatePomoDisplay();
+}
+
+function updatePomoDisplay() {
+  const m = Math.floor(POMO.seconds / 60);
+  const s = POMO.seconds % 60;
+  document.getElementById('pomo-time').textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+  const totalSecs = getPomoSeconds();
+  const pct = (POMO.seconds / totalSecs);
+  const circumference = 628;
+  document.getElementById('pomo-svg-prog').style.strokeDashoffset = circumference * pct;
+}
+
+function endPhase() {
+  clearInterval(POMO.interval);
+  stopTicking();
+  POMO.running = false;
+  hideLockedOverlay();
+  document.getElementById('pomo-main-btn').textContent = '▶';
+
+  if (!POMO.break) {
+    STATE.todayPomos = (STATE.todayPomos || 0) + 1;
+    STATE.totalPomos = (STATE.totalPomos || 0) + 1;
+    const chIdx = document.getElementById('pomo-chapter-select').value;
+    const chName = chIdx === 'freewrite' ? 'Freewrite' : STATE.chapters[parseInt(chIdx)]?.title || 'Unknown';
+    if (!STATE.sessions) STATE.sessions = [];
+    STATE.sessions.push({ time: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}), chapter: chName, dur: STATE.settings.workDur || 25 });
+    renderSessionLog();
+    playPing();
+    launchConfetti();
+    checkEasterEgg();
+    checkBadges();
+    saveState();
+    updateDashboard();
+    renderChecklist();
   }
 
-  function deleteAthlete(id) {
-    const next = athletes.filter(a => a.id !== id);
-    setAthletes(next);
-    save("awaygame_athletes_v1", next);
-    setDeleteConfirm(null);
-    if (viewing && viewing.id === id) setViewing(null);
-  }
-
-  const teamStats = calculateTeamProgress(athletes);
-
-  return (
-    <div style={{minHeight:"100vh", background:"#f8f9fa"}}>
-      {/* HEADER */}
-      <div style={{background:"#fff", borderBottom:"4px solid #ff8c00", padding:"0 24px", height:76, display:"flex", alignItems:"center", justifyContent:"space-between", boxShadow:"0 3px 12px rgba(0,0,0,0.1)"}}>
-        <div>
-          <div style={{fontFamily:"'Barlow Condensed',sans-serif", fontWeight:900, fontSize:32, letterSpacing:1.5, color:C.orange}}>AWAY GAME</div>
-          <div style={{fontSize:13, color:"#555"}}>Christian Parent’s Playbook</div>
-        </div>
-        <div style={{display:"flex", gap:8}}>
-          <button onClick={()=>setTab("athletes")} style={{padding:"10px 22px", borderRadius:10, background:tab==="athletes"?C.orange:"#fff", color:tab==="athletes"?"#fff":"#333", fontWeight:700, border:"2px solid #ff8c00"}}>👥 My Athletes</button>
-          <button onClick={()=>setTab("playbook")} style={{padding:"10px 22px", borderRadius:10, background:tab==="playbook"?C.orange:"#fff", color:tab==="playbook"?"#fff":"#333", fontWeight:700, border:"2px solid #ff8c00"}}>📖 The Playbook</button>
-        </div>
-      </div>
-
-      {tab === "athletes" && (
-        <div style={{padding:24}}>
-          {/* TEAM PROGRESS DASHBOARD */}
-          {athletes.length > 0 && (
-            <div className="team-card" style={{marginBottom:32}}>
-              <div style={{fontSize:20, fontWeight:800, marginBottom:16, color:C.orange}}>Team Progress Overview</div>
-              <div style={{display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(180px, 1fr))", gap:20}}>
-                <div>
-                  <div style={{fontSize:13, color:C.textMuted}}>Team Average Score</div>
-                  <div style={{fontSize:32, fontWeight:800, color:C.orange}}>{teamStats.avgScore}</div>
-                  <div style={{fontSize:13}}>out of 3.0</div>
-                </div>
-                <div>
-                  <div style={{fontSize:13, color:C.textMuted}}>Strong Virtues</div>
-                  <div style={{fontSize:32, fontWeight:800, color: teamStats.strongPercent > 70 ? C.green : C.orange}}>{teamStats.strongPercent}%</div>
-                </div>
-                <div>
-                  <div style={{fontSize:13, color:C.textMuted}}>Athletes Tracked</div>
-                  <div style={{fontSize:32, fontWeight:800}}>{teamStats.totalAthletes}</div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div style={{display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:28}}>
-            <h1 style={{fontSize:28, fontWeight:800}}>My Athletes</h1>
-            <button onClick={()=>setEditing(BLANK_ATHLETE)} style={{background:C.orange, color:"#fff", border:"none", padding:"12px 28px", borderRadius:12, fontWeight:700}}>＋ Add Athlete</button>
-          </div>
-
-          {athletes.length === 0 ? (
-            <div style={{textAlign:"center", padding:"120px 20px", color:"#666"}}>
-              <div style={{fontSize:80}}>⚽️🏀🏈</div>
-              <div style={{fontSize:24, margin:"20px 0"}}>Start building your team’s character</div>
-              <button onClick={()=>setEditing(BLANK_ATHLETE)} style={{background:C.orange, color:"#fff", padding:"14px 36px", borderRadius:12, fontSize:17, fontWeight:700}}>Add Your First Athlete</button>
-            </div>
-          ) : (
-            <div style={{display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(310px, 1fr))", gap:20}}>
-              {athletes.map(p => {
-                const combo = getCombo(p.scores);
-                return (
-                  <div key={p.id} style={{background:"#fff", border:`1px solid ${C.border}`, borderRadius:16, padding:22, boxShadow:"0 6px 20px rgba(0,0,0,0.07)", position:"relative"}}>
-                    <button 
-                      onClick={(e)=>{e.stopPropagation(); setDeleteConfirm(p);}} 
-                      className="delete-btn" 
-                      style={{position:"absolute", top:12, right:12}}
-                    >
-                      🗑
-                    </button>
-                    
-                    <div onClick={()=>setViewing(p)} style={{cursor:"pointer"}}>
-                      <div style={{fontSize:22, fontWeight:800, marginBottom:8}}>{p.name}</div>
-                      {p.role && <div style={{color:C.textSub, marginBottom:12}}>{p.role}</div>}
-                      
-                      <div style={{display:"flex", gap:8, flexWrap:"wrap", marginBottom:16}}>
-                        {Object.entries(p.scores).map(([k,v]) => (
-                          <div key={k} style={{background:VIRTUES[k].bg, padding:"6px 10px", borderRadius:8, fontSize:14}}>{VIRTUES[k].icon} {v}</div>
-                        ))}
-                      </div>
-
-                      <div style={{marginBottom:12}}>
-                        <div className="progress-bar">
-                          <div className="progress-fill" style={{width: `${combo.progress}%`, background: combo.progress > 80 ? "linear-gradient(90deg,#00b36b,#34d399)" : combo.progress > 50 ? "linear-gradient(90deg,#ff8c00,#ffaa00)" : "#dc3545"}} />
-                        </div>
-                      </div>
-
-                      <div style={{fontSize:13, color:C.textMuted}}>Last updated: {p.lastUpdated ? new Date(p.lastUpdated).toLocaleDateString() : "Never"}</div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      )}
-
-      {tab === "playbook" && (
-        <div style={{padding:24, maxWidth:820, margin:"0 auto"}}>
-          <h2 style={{color:C.orange, marginBottom:8}}>The Seven Virtues</h2>
-          <p style={{color:C.textSub, marginBottom:32}}>Fruit of the Spirit applied to youth sports.</p>
-          {Object.values(VIRTUES).map(t => (
-            <div key={t.key} style={{marginBottom:24, background:"#fff", border:`1px solid ${t.border}`, borderRadius:16, padding:24}}>
-              <div style={{display:"flex", alignItems:"center", gap:16}}>
-                <span style={{fontSize:48}}>{t.icon}</span>
-                <div>
-                  <div style={{fontSize:22, fontWeight:800, color:t.color}}>{t.label}</div>
-                  <div style={{color:C.textSub}}>"{t.tagline}"</div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {editing && <EditModal person={editing} onSave={saveAthlete} onClose={()=>setEditing(null)} />}
-      {viewing && <PersonDetail person={viewing} onClose={()=>setViewing(null)} onEdit={p=>{setViewing(null); setEditing(p);}} />}
-      {deleteConfirm && <ConfirmDelete name={deleteConfirm.name} onConfirm={()=>deleteAthlete(deleteConfirm.id)} onCancel={()=>setDeleteConfirm(null)} />}
-    </div>
-  );
+  POMO.break = !POMO.break;
+  POMO.seconds = getPomoSeconds();
+  POMO.totalSeconds = POMO.seconds;
+  document.getElementById('pomo-orb').classList.toggle('break-mode', POMO.break);
+  document.getElementById('pomo-mode-label').textContent = POMO.break ? 'BREAK — WELL DONE!' : 'READY TO FOCUS';
+  document.getElementById('pomo-time').textContent = POMO.break ?
+    `${STATE.settings.breakDur || 5}:00` : `${STATE.settings.workDur || 25}:00`;
 }
 
-const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(React.createElement(App));
+function togglePomo() {
+  if (POMO.running) { pausePomo(); } else { startPomo(); }
+}
+
+function pausePomo() {
+  clearInterval(POMO.interval);
+  POMO.running = false;
+  stopTicking();
+  document.getElementById('pomo-main-btn').textContent = '▶';
+  hideLockedOverlay();
+}
+
+function resetPomo() {
+  pausePomo();
+  POMO.break = false;
+  POMO.seconds = getPomoSeconds();
+  document.getElementById('pomo-orb').classList.remove('break-mode');
+  document.getElementById('pomo-mode-label').textContent = 'READY TO FOCUS';
+  const m = STATE.settings.workDur || 25;
+  document.getElementById('pomo-time').textContent = m + ':00';
+  document.getElementById('pomo-svg-prog').style.strokeDashoffset = 0;
+}
+
+function skipPhase() {
+  if (!POMO.running) return;
+  pausePomo();
+  POMO.break = !POMO.break;
+  POMO.seconds = getPomoSeconds();
+  document.getElementById('pomo-orb').classList.toggle('break-mode', POMO.break);
+  document.getElementById('pomo-mode-label').textContent = POMO.break ? 'BREAK TIME' : 'FOCUS';
+  updatePomoDisplay();
+}
+
+function emergencyPause() {
+  pausePomo();
+  hideLockedOverlay();
+  showToast('⚡ Emergency pause — time still counts toward your daily minimum');
+}
+
+function renderSessionLog() {
+  const el = document.getElementById('session-log-list');
+  if (!el) return;
+  if (!STATE.sessions || !STATE.sessions.length) {
+    el.innerHTML = '<div class="empty-state" style="padding:20px 0;"><div class="icon">⏱️</div><p>No sessions yet today</p></div>';
+    return;
+  }
+  el.innerHTML = STATE.sessions.map(s => `
+    <div class="session-item">
+      <span>${s.chapter}</span>
+      <span class="font-mono" style="color:var(--sage);">${s.dur} min — ${s.time}</span>
+    </div>
+  `).join('');
+}
+
+function showLockedOverlay() {
+  document.getElementById('locked-overlay').classList.add('active');
+}
+function hideLockedOverlay() {
+  document.getElementById('locked-overlay').classList.remove('active');
+}
+
+// ======================================================
+// WEB AUDIO — TICKING + PING
+// ======================================================
+let tickInterval = null;
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+function playTick() {
+  try {
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass'; filter.frequency.value = 400;
+    osc.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.value = 800; osc.type = 'sine';
+    gain.gain.setValueAtTime(0.04, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+    osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.08);
+  } catch(e) {}
+}
+
+function startTicking() {
+  stopTicking();
+  if (STATE.settings.sound) tickInterval = setInterval(playTick, 1000);
+}
+
+function stopTicking() { clearInterval(tickInterval); }
+
+function playPing() {
+  try {
+    const ctx = getAudioCtx();
+    const freqs = [523.25, 659.25, 783.99]; // C, E, G chord
+    freqs.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.value = freq; osc.type = 'sine';
+      const t = ctx.currentTime + i * 0.08;
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.linearRampToValueAtTime(0.2, t + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 1.5);
+      osc.start(t); osc.stop(t + 1.5);
+    });
+  } catch(e) {}
+}
+
+function toggleSound() {
+  STATE.settings.sound = !STATE.settings.sound;
+  const sw = document.getElementById('sound-toggle');
+  sw.classList.toggle('on', STATE.settings.sound);
+  document.getElementById('sound-label').textContent = STATE.settings.sound ? 'Ticking sound on' : 'Ticking sound off';
+  if (POMO.running) {
+    if (STATE.settings.sound) startTicking();
+    else stopTicking();
+  }
+  saveState();
+}
+
+// ======================================================
+// WRITING STUDIO
+// ======================================================
+function buildStudioTabs() {
+  const tabs = document.getElementById('studio-tabs');
+  if (!tabs) return;
+  tabs.innerHTML = STATE.chapters.map((c, i) => `
+    <div class="studio-tab ${CURRENT_STUDIO_CHAPTER === i ? 'active' : ''}" onclick="switchStudioChapter(${i})">Ch ${i + 1}</div>
+  `).join('') + `<div class="studio-tab ${CURRENT_STUDIO_CHAPTER === 'freewrite' ? 'active' : ''}" onclick="switchStudioChapter('freewrite')">✍️ Free</div>`;
+}
+
+function switchStudioChapter(idx) {
+  // Save current
+  saveCurrentEditorContent();
+  CURRENT_STUDIO_CHAPTER = idx;
+  const ed = document.getElementById('studio-editor');
+  if (idx === 'freewrite') {
+    ed.innerHTML = STATE.freewrite || '';
+    ed.setAttribute('data-placeholder', 'Freewrite anything — notes, research, ideas...');
+    document.getElementById('studio-chapter-target').textContent = '';
+  } else {
+    const ch = STATE.chapters[idx];
+    ed.innerHTML = ch.content || '';
+    ed.setAttribute('data-placeholder', `Begin Chapter ${idx + 1}: ${ch.title}...`);
+    document.getElementById('studio-chapter-target').textContent = `Target: ${(ch.target || 0).toLocaleString()} words`;
+  }
+  updateWordCount();
+  buildStudioTabs();
+}
+
+function saveCurrentEditorContent() {
+  const ed = document.getElementById('studio-editor');
+  if (!ed) return;
+  const content = ed.innerHTML;
+  const words = countWords(ed.innerText || ed.textContent);
+  if (CURRENT_STUDIO_CHAPTER === 'freewrite') {
+    STATE.freewrite = content;
+  } else if (STATE.chapters[CURRENT_STUDIO_CHAPTER] !== undefined) {
+    const old = STATE.chapters[CURRENT_STUDIO_CHAPTER].words || 0;
+    const diff = words - old;
+    STATE.chapters[CURRENT_STUDIO_CHAPTER].content = content;
+    STATE.chapters[CURRENT_STUDIO_CHAPTER].words = words;
+    if (diff > 0) STATE.todayWords = (STATE.todayWords || 0) + diff;
+  }
+}
+
+function updateWordCount() {
+  const ed = document.getElementById('studio-editor');
+  const wc = document.getElementById('studio-word-count');
+  if (!ed || !wc) return;
+  const words = countWords(ed.innerText || ed.textContent);
+  wc.textContent = words.toLocaleString() + ' words';
+}
+
+function countWords(text) {
+  if (!text || !text.trim()) return 0;
+  return text.trim().split(/\s+/).filter(w => w.length > 0).length;
+}
+
+function openChapterInStudio(i) {
+  switchTab('studio');
+  setTimeout(() => switchStudioChapter(i), 100);
+}
+
+function toggleFocusMode() {
+  IS_FOCUS_MODE = !IS_FOCUS_MODE;
+  document.body.classList.toggle('focus-mode', IS_FOCUS_MODE);
+  const btn = document.getElementById('focus-mode-btn');
+  if (btn) btn.textContent = IS_FOCUS_MODE ? '✕ Exit Focus' : '⛶ Focus';
+}
+
+function openExportModal() {
+  openModal(`
+    <div class="modal-title">Export Your Book</div>
+    <p style="color:var(--text-muted);font-size:0.88rem;margin-bottom:20px;">Download all chapters as a single file</p>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <button class="btn btn-primary" onclick="exportBook('txt')">📄 Export as .txt</button>
+      <button class="btn btn-secondary" onclick="exportBook('md')">📝 Export as .md (Markdown)</button>
+    </div>
+  `);
+}
+
+function exportBook(format) {
+  let content = `${STATE.bookTitle}\n${STATE.bookSubtitle}\n${'='.repeat(60)}\n\n`;
+  STATE.chapters.forEach((ch, i) => {
+    const text = ch.content ? (new DOMParser().parseFromString(ch.content, 'text/html').body.innerText) : '';
+    if (format === 'md') {
+      content += `## Chapter ${i + 1}: ${ch.title}\n\n${text}\n\n`;
+    } else {
+      content += `CHAPTER ${i + 1}: ${ch.title}\n${'—'.repeat(40)}\n\n${text}\n\n`;
+    }
+  });
+  const freeText = STATE.freewrite ? (new DOMParser().parseFromString(STATE.freewrite, 'text/html').body.innerText) : '';
+  if (freeText.trim()) {
+    content += (format === 'md' ? '## Freewrite / Notes\n\n' : 'FREEWRITE / NOTES\n——\n\n') + freeText;
+  }
+  const blob = new Blob([content], { type: 'text/plain' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `${STATE.bookTitle}.${format}`; a.click();
+  closeModal();
+}
+
+// ======================================================
+// ANALYTICS
+// ======================================================
+function renderAnalytics() {
+  // Health score
+  const totalWords = STATE.chapters.reduce((s, c) => s + (c.words || 0), 0);
+  const wordPct = Math.min(100, Math.round(totalWords / STATE.wordGoal * 100));
+  const streakBonus = Math.min(20, (STATE.streak || 0) * 2);
+  const score = Math.min(100, wordPct + streakBonus);
+  document.getElementById('health-score').textContent = score;
+  document.getElementById('health-bar').style.width = score + '%';
+  document.getElementById('health-label').textContent = score >= 80 ? 'Excellent Progress!' : score >= 50 ? 'On Track' : score >= 20 ? 'Getting Started' : 'Just Warming Up';
+  document.getElementById('health-sub').textContent = `${wordPct}% of word goal + ${streakBonus} streak bonus`;
+
+  renderHeatmap();
+  renderWordsChart();
+  renderBadges();
+  renderVault();
+}
+
+function renderHeatmap() {
+  const grid = document.getElementById('heatmap-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  const today = new Date();
+  const weeks = 16;
+  const days = weeks * 7;
+  const start = new Date(today);
+  start.setDate(start.getDate() - days + 1);
+
+  // Build week columns
+  let current = new Date(start);
+  for (let w = 0; w < weeks; w++) {
+    const col = document.createElement('div');
+    col.className = 'heatmap-row';
+    for (let d = 0; d < 7; d++) {
+      const dateStr = current.toISOString().split('T')[0];
+      const data = (STATE.dailyData || {})[dateStr] || {};
+      const mins = data.minutes || 0;
+      const cell = document.createElement('div');
+      cell.className = 'heatmap-cell';
+      if (mins >= 60) cell.classList.add('level-4');
+      else if (mins >= 40) cell.classList.add('level-3');
+      else if (mins >= 20) cell.classList.add('level-2');
+      else if (mins > 0) cell.classList.add('level-1');
+      cell.title = `${dateStr}: ${Math.round(mins)} min`;
+      col.appendChild(cell);
+      current.setDate(current.getDate() + 1);
+    }
+    grid.appendChild(col);
+  }
+}
+
+function renderWordsChart() {
+  const canvas = document.getElementById('words-chart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.offsetWidth || 300;
+  canvas.height = 120;
+  const W = canvas.width, H = 120;
+  const days = 14;
+  const data = [];
+  for (let i = days - 1; i >= 0; i--) {
+    const d = getDateStr(-i);
+    data.push({ date: d, words: ((STATE.dailyData || {})[d] || {}).words || 0 });
+  }
+  const maxVal = Math.max(...data.map(d => d.words), 100);
+  ctx.clearRect(0, 0, W, H);
+  const pad = { t: 10, b: 20, l: 10, r: 10 };
+  const chartW = W - pad.l - pad.r;
+  const chartH = H - pad.t - pad.b;
+  const barW = chartW / days * 0.7;
+  const gap = chartW / days;
+
+  // Grid line
+  ctx.strokeStyle = 'rgba(74,124,89,0.1)'; ctx.lineWidth = 1;
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath(); ctx.moveTo(pad.l, pad.t + chartH / 2); ctx.lineTo(W - pad.r, pad.t + chartH / 2); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Bars
+  data.forEach((d, i) => {
+    const barH = maxVal ? (d.words / maxVal) * chartH : 0;
+    const x = pad.l + i * gap + (gap - barW) / 2;
+    const y = pad.t + chartH - barH;
+    const gradient = ctx.createLinearGradient(0, y, 0, y + barH);
+    gradient.addColorStop(0, '#6aaa7e');
+    gradient.addColorStop(1, 'rgba(74,124,89,0.3)');
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.roundRect(x, y, barW, barH, 3);
+    ctx.fill();
+
+    // Date label
+    if (i % 3 === 0) {
+      ctx.fillStyle = 'rgba(74,96,64,0.6)'; ctx.font = '9px DM Sans'; ctx.textAlign = 'center';
+      const label = d.date.slice(5);
+      ctx.fillText(label, x + barW / 2, H - 4);
+    }
+  });
+}
+
+function renderBadges() {
+  const grid = document.getElementById('badge-grid');
+  if (!grid) return;
+  const totalWords = STATE.chapters.reduce((s, c) => s + (c.words || 0), 0);
+  const wordPct = totalWords / STATE.wordGoal * 100;
+  grid.innerHTML = BADGES.map(b => {
+    let earned = false;
+    if (b.type === 'words') earned = totalWords >= b.threshold;
+    else if (b.type === 'pct') earned = wordPct >= b.threshold;
+    else if (b.type === 'pomos') earned = (STATE.totalPomos || 0) >= b.threshold;
+    else if (b.type === 'streak') earned = (STATE.streak || 0) >= b.threshold;
+    else if (b.type === 'fulldays') earned = (STATE.fullDaysCount || 0) >= b.threshold;
+    return `<div class="badge-item ${earned ? 'earned' : ''}">
+      <div class="badge-icon">${b.icon}</div>
+      <div class="badge-name">${b.name}</div>
+    </div>`;
+  }).join('');
+}
+
+function checkBadges() {
+  const totalWords = STATE.chapters.reduce((s, c) => s + (c.words || 0), 0);
+  if (totalWords >= 5000 && !(STATE.badges || []).includes('first-5k')) {
+    STATE.badges = [...(STATE.badges || []), 'first-5k'];
+    showToast('🏆 Badge earned: First 5K!');
+  }
+}
+
+function renderVault() {
+  const list = document.getElementById('vault-list');
+  if (!list) return;
+  if (!(STATE.vault || []).length) {
+    list.innerHTML = '<div class="empty-state" style="padding:20px 0;"><div class="icon">💡</div><p>No vault entries yet. Capture your ideas!</p></div>';
+    return;
+  }
+  list.innerHTML = (STATE.vault || []).map((v, i) => `
+    <div class="vault-item">
+      <div class="vault-item-text">${v.text}</div>
+      <div class="vault-item-date">${v.date}</div>
+      <button class="vault-delete" onclick="deleteVaultItem(${i})">×</button>
+    </div>
+  `).join('');
+}
+
+function addVaultItem() {
+  const input = document.getElementById('vault-input');
+  const text = input.value.trim();
+  if (!text) return;
+  if (!STATE.vault) STATE.vault = [];
+  STATE.vault.unshift({ text, date: new Date().toLocaleDateString() });
+  input.value = '';
+  // Mark checklist item done
+  const item = STATE.checklist.find(i => i.id === 'theme-vault');
+  if (item) item.done = true;
+  saveState();
+  renderVault();
+  renderChecklist();
+  showToast('💡 Idea saved to Theme Vault!');
+}
+
+function deleteVaultItem(i) {
+  STATE.vault.splice(i, 1);
+  saveState(); renderVault();
+}
+
+// ======================================================
+// EASTER EGG
+// ======================================================
+function checkEasterEgg() {
+  const pomos = STATE.totalPomos || 0;
+  if (pomos % 5 === 0) {
+    const msg = EASTER_EGGS[Math.floor(pomos / 5 - 1) % EASTER_EGGS.length];
+    showEasterEgg(msg);
+  }
+}
+
+function showEasterEgg(msg) {
+  const el = document.getElementById('easter-egg');
+  el.textContent = '✨ ' + msg;
+  el.style.display = 'block';
+  setTimeout(() => { el.style.display = 'none'; }, 6000);
+}
+
+// ======================================================
+// CONFETTI
+// ======================================================
+function launchConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  canvas.style.display = 'block';
+  canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+  const ctx = canvas.getContext('2d');
+  const pieces = Array.from({length: 80}, () => ({
+    x: Math.random() * canvas.width,
+    y: -10 - Math.random() * 100,
+    r: 4 + Math.random() * 6,
+    color: ['#4a7c59','#d4a853','#5b8fa8','#c96b4a','#6aaa7e','#e8c47a'][Math.floor(Math.random()*6)],
+    dx: (Math.random() - 0.5) * 4,
+    dy: 2 + Math.random() * 4,
+    rotation: Math.random() * 360,
+    rotSpeed: (Math.random() - 0.5) * 10,
+    opacity: 1
+  }));
+  let frame = 0;
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pieces.forEach(p => {
+      p.x += p.dx; p.y += p.dy; p.rotation += p.rotSpeed;
+      p.opacity = Math.max(0, 1 - frame / 80);
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rotation * Math.PI / 180);
+      ctx.globalAlpha = p.opacity; ctx.fillStyle = p.color;
+      ctx.fillRect(-p.r/2, -p.r/2, p.r, p.r * 0.5);
+      ctx.restore();
+    });
+    frame++;
+    if (frame < 90) requestAnimationFrame(animate);
+    else { canvas.style.display = 'none'; ctx.clearRect(0, 0, canvas.width, canvas.height); }
+  }
+  animate();
+}
+
+// ======================================================
+// SETTINGS
+// ======================================================
+function loadSettings() {
+  const s = STATE.settings || {};
+  const wi = document.getElementById('set-work-dur');
+  const bi = document.getElementById('set-break-dur');
+  const di = document.getElementById('set-daily-min');
+  const ti = document.getElementById('set-title');
+  const gi = document.getElementById('set-word-goal');
+  if (wi) wi.value = s.workDur || 25;
+  if (bi) bi.value = s.breakDur || 5;
+  if (di) di.value = s.dailyMin || 30;
+  if (ti) ti.value = STATE.bookTitle || '';
+  if (gi) gi.value = STATE.wordGoal || 17500;
+
+  const dt = document.getElementById('dark-toggle');
+  const lt = document.getElementById('lock-toggle');
+  if (dt) dt.classList.toggle('on', !!s.dark);
+  if (lt) lt.classList.toggle('on', !!s.locked);
+}
+
+function saveSettings() {
+  STATE.settings.workDur = parseInt(document.getElementById('set-work-dur').value) || 25;
+  STATE.settings.breakDur = parseInt(document.getElementById('set-break-dur').value) || 5;
+  STATE.settings.dailyMin = parseInt(document.getElementById('set-daily-min').value) || 30;
+  STATE.bookTitle = document.getElementById('set-title').value.trim() || STATE.bookTitle;
+  STATE.wordGoal = parseInt(document.getElementById('set-word-goal').value) || STATE.wordGoal;
+  saveState();
+  generateChecklist();
+  renderAll();
+  showToast('✓ Settings saved');
+}
+
+function toggleTheme() {
+  STATE.settings.dark = !STATE.settings.dark;
+  applyTheme();
+  const dt = document.getElementById('dark-toggle');
+  if (dt) dt.classList.toggle('on', STATE.settings.dark);
+  saveState();
+}
+
+function applyTheme() {
+  document.body.classList.toggle('dark', !!STATE.settings.dark);
+  const btn = document.querySelector('.icon-btn[title="Theme"]');
+  if (btn) btn.textContent = STATE.settings.dark ? '☀️' : '🌙';
+}
+
+function toggleLockMode() {
+  STATE.settings.locked = !STATE.settings.locked;
+  const lt = document.getElementById('lock-toggle');
+  if (lt) lt.classList.toggle('on', STATE.settings.locked);
+  saveState();
+  showToast(STATE.settings.locked ? '🔒 Focus lock enabled' : '🔓 Focus lock disabled');
+}
+
+function openTimerSettings() { switchTab('settings'); }
+
+function requestNotifPermission() {
+  if ('Notification' in window) {
+    Notification.requestPermission().then(p => showToast(p === 'granted' ? '🔔 Notifications enabled!' : 'Notifications blocked.'));
+  } else { showToast('Notifications not supported in this browser'); }
+}
+
+function exportData() {
+  const blob = new Blob([JSON.stringify(STATE, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = 'focusscript-backup.json'; a.click();
+}
+
+function importData(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      STATE = JSON.parse(e.target.result);
+      saveState(); location.reload();
+    } catch { showToast('Invalid backup file'); }
+  };
+  reader.readAsText(file);
+}
+
+function resetWizard() {
+  if (!confirm('This will permanently delete all your writing and data. Are you sure?')) return;
+  localStorage.removeItem('fs_state');
+  location.reload();
+}
+
+// ======================================================
+// NAVIGATION
+// ======================================================
+function switchTab(tab) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.style.display = 'none');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
+  const panel = document.getElementById('tab-' + tab);
+  if (panel) {
+    panel.style.display = tab === 'studio' ? 'flex' : 'block';
+  }
+  const btn = document.querySelector(`.nav-btn[data-tab="${tab}"]`);
+  if (btn) btn.classList.add('active');
+
+  // Tab-specific actions
+  if (tab === 'dashboard') { updateDashboard(); renderChecklist(); }
+  if (tab === 'planner') { renderChapterList(); }
+  if (tab === 'timer') { renderSessionLog(); }
+  if (tab === 'studio') {
+    buildStudioTabs();
+    if (CURRENT_STUDIO_CHAPTER !== null) {
+      const ch = STATE.chapters[CURRENT_STUDIO_CHAPTER];
+      const ed = document.getElementById('studio-editor');
+      if (ed && ch) ed.innerHTML = ch.content || '';
+      else if (ed && CURRENT_STUDIO_CHAPTER === 'freewrite') ed.innerHTML = STATE.freewrite || '';
+      updateWordCount();
+    }
+  }
+  if (tab === 'analytics') { renderAnalytics(); }
+  if (tab === 'settings') { loadSettings(); }
+}
+
+// ======================================================
+// MODAL
+// ======================================================
+function openModal(html) {
+  document.getElementById('modal-content').innerHTML = html;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+
+// ======================================================
+// TOAST
+// ======================================================
+let toastTimer = null;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ======================================================
+// KEYBOARD
+// ======================================================
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    if (IS_FOCUS_MODE) toggleFocusMode();
+    closeModal();
+  }
+});
+
+document.getElementById('studio-editor').addEventListener('input', updateWordCount);
+
+// ======================================================
+// BOOT
+// ======================================================
+window.addEventListener('load', () => {
+  const hasData = loadState();
+  if (hasData && STATE.bookTitle) {
+    showApp();
+  }
+  // else stay on onboarding
+  updateWordGoalDisplay();
+
+  // PWA manifest
+  const meta = document.createElement('link');
+  meta.rel = 'manifest'; meta.href = 'data:application/json,' + encodeURIComponent(JSON.stringify({
+    name: 'FocusScript', short_name: 'FocusScript', start_url: './',
+    display: 'standalone', background_color: '#f5f0e8', theme_color: '#1a2e1a',
+    icons: [{ src: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">📝</text></svg>', sizes: 'any', type: 'image/svg+xml' }]
+  }));
+  document.head.appendChild(meta);
+});
+
+// Canvas roundRect polyfill for Safari/older browsers
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+    if (w < 2 * r) r = w / 2;
+    if (h < 2 * r) r = h / 2;
+    this.beginPath();
+    this.moveTo(x + r, y);
+    this.arcTo(x + w, y, x + w, y + h, r);
+    this.arcTo(x + w, y + h, x, y + h, r);
+    this.arcTo(x, y + h, x, y, r);
+    this.arcTo(x, y, x + w, y, r);
+    this.closePath();
+    return this;
+  };
+}
 </script>
 </body>
 </html>
